@@ -55,7 +55,7 @@ Fonty aj ikony sú súčasťou zostavy. Aplikácia pri používaní nenačítava
 
 ## Zverejnenie cez GitHub Pages
 
-Repozitár už obsahuje workflow [`.github/workflows/pages.yml`](.github/workflows/pages.yml). Overí testy, zostaví stránku a pri zmene vetvy `main` nasadí `dist/`.
+Repozitár už obsahuje workflow [`.github/workflows/pages.yml`](.github/workflows/pages.yml). Pred publikovaním najprv overí nastavenie GitHub Pages, potom overí testy, zostaví stránku a pri zmene vetvy `main` nasadí `dist/`. Pull requesty overujú aplikáciu bez prístupu k Pages a bez nasadenia.
 
 ### Prvé zapnutie
 
@@ -66,6 +66,17 @@ Repozitár už obsahuje workflow [`.github/workflows/pages.yml`](.github/workflo
 5. Stránka bude dostupná na **<https://gh0st3r0k.github.io/ynet-tahacky/>**. GitHub môže potrebovať ešte krátky čas na jej sprístupnenie.
 
 Ak GitHub Pages nie je dostupný pri súkromnom repozitári, skontrolujte podporu vo svojom GitHub pláne a nastaveniach organizácie. Ak nasadenie čaká na schválenie prostredia `github-pages`, skontrolujte ochranné pravidlá v nastaveniach repozitára.
+
+### Chyba 404 pri nasadení
+
+Ak `actions/deploy-pages` vypíše **Failed to create deployment (status: 404)** a **Ensure GitHub Pages has been enabled**, artefakt môže byť v poriadku, ale cieľové Pages ešte nie je pripravené. Hlásenie `punycode module is deprecated` je iba upozornenie a nie je príčinou tejto chyby.
+
+1. Otvorte [Settings → Pages](https://github.com/Gh0st3r0k/ynet-tahacky/settings/pages) ako správca repozitára.
+2. V **Build and deployment → Source** vyberte **GitHub Actions**. Povolené spúšťanie workflowov v **Settings → Actions** samo osebe Pages nezapína.
+3. V karte **Actions** otvorte **Overenie a nasadenie na GitHub Pages** a cez **Run workflow → main** spustite nový beh s aktuálnym workflowom.
+4. Ak už je zdroj nastavený správne, skontrolujte dostupnosť Pages pre daný repozitár/plán a prípadné pravidlá organizácie.
+
+Workflow používa oficiálny `actions/configure-pages@v5` ešte pred inštaláciou závislostí. Pri nedostupnom Pages sa zastaví s odkazom na nastavenia a návodom v súhrne behu. Prvé zapnutie musí urobiť správca: podľa [dokumentácie configure-pages](https://github.com/actions/configure-pages/blob/v5/action.yml) ho bežný `GITHUB_TOKEN` nedokáže vykonať. Na bežné nasadenia po zapnutí nie je potrebný ďalší token ani tajomstvo.
 
 ### Ďalšie aktualizácie
 

@@ -17,7 +17,29 @@ jobs:
   build:
     name: Testy a zostavenie
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: read
     steps:
+      - name: Overiť nastavenie GitHub Pages
+        id: pages
+        if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+        uses: actions/configure-pages@v5
+        with:
+          enablement: false
+      - name: Pokyny na zapnutie GitHub Pages
+        if: failure() && steps.pages.outcome == 'failure'
+        env:
+          PAGES_SETTINGS_URL: https://github.com/${{ github.repository }}/settings/pages
+        run: |
+          printf '%s\n' "::error title=GitHub Pages nie je pripravený::V nastaveniach $PAGES_SETTINGS_URL vyberte Build and deployment → Source → GitHub Actions. Potom spustite nový beh tohto workflowu."
+          {
+            printf '%s\n' '### GitHub Pages treba najprv zapnúť' ''
+            printf '%s\n' "1. Otvorte [Settings → Pages]($PAGES_SETTINGS_URL)."
+            printf '%s\n' '2. V **Build and deployment → Source** vyberte **GitHub Actions**.'
+            printf '%s\n' '3. Spustite **Run workflow → main**; samotné opakovanie deploy kroku nastavenie Pages nezmení.' ''
+            printf '%s\n' 'Ak je Pages už zapnutý, skontrolujte dostupnosť Pages pre váš plán a oprávnenia v nastaveniach repozitára. Bežný GITHUB_TOKEN prvé zapnutie Pages nemôže vykonať.'
+          } >> "$GITHUB_STEP_SUMMARY"
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
