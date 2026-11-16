@@ -17,6 +17,8 @@ import {
   placeStatusFor,
   matchesRoomPattern,
   applySelectionPattern,
+  previewTemplateUpdate,
+  applyTemplateUpdate,
 } from '../src/model.js'
 
 test('blok má 64 izieb, osem poschodí a samostatnú serverovňu', () => {
@@ -235,4 +237,112 @@ test('vlastné úlohy sa zmenia v reaktívnom zozname okamžite aj bez obnovenia
   assert.equal(tasks.value.length, 0)
   setPlaceTasks(event, place, null)
   assert.equal(tasks.value.length, 3)
+})
+
+test('náhľad šablóny nemení údaje a týka sa len vlastných zoznamov upraveného typu', () => {
+  const event = makeDemo(),
+    room = event.places[0],
+    server = event.places.at(-1)
+  setPlaceTasks(event, room, tasksFor(event, room))
+  setPlaceTasks(event, server, tasksFor(event, server))
+  const before = JSON.stringify(event),
+    templates = structuredClone(event.templates)
+  templates.room[0].text = 'Upravená spoločná kontrola'
+  templates.room.push({ id: 'new-room', text: 'Nová úloha pre izbu' })
+  const preview = previewTemplateUpdate(event, templates)
+  assert.equal(JSON.stringify(event), before)
+  assert.deepEqual(preview.changedKinds, ['room'])
+  assert.equal(preview.updates.length, 1)
+  assert.equal(preview.updates[0].place.id, room.id)
+  assert.equal(preview.updates[0].added, 1)
+  assert.equal(preview.updates[0].updated, 1)
+  assert.equal(preview.overflow.length, 0)
+  assert.equal(previewTemplateUpdate(event, structuredClone(event.templates)).updates.length, 0)
+})
+
+test('súhlas doplní všetky dotknuté vlastné plány bez duplicít a zachová vlastné úlohy aj postup', () => {
+  const event = makeDemo(),
+    room = event.places[0],
+    other = event.places[1],
+    server = event.places.at(-1)
+  const ownTask = { id: 'personal-room', text: 'Iba pre túto izbu' }
+  setPlaceTasks(event, room, [...event.templates.room, ownTask])
+  event.progress[room.id].tasks[ownTask.id] = true
+  event.progress[room.id].done = true
+  event.progress[room.id].note = 'Zachovaná poznámka'
+  event.progress[room.id].flags.master = true
+  setPlaceTasks(event, other, [])
+  setPlaceTasks(event, server, [
+    ...event.templates.server,
+    { id: 'personal-server', text: 'Iba pre serverovňu' },
+  ])
+  const templates = structuredClone(event.templates)
+  templates.room[0].text = 'Upravená spoločná kontrola'
+  templates.room.push({ id: 'new-room', text: 'Nová úloha pre izbu' })
+  templates.server.push({ id: 'new-server', text: 'Nová úloha pre serverovňu' })
+  applyTemplateUpdate(event, templates, true)
+  assert.equal(tasksFor(event, room).length, 5)
+  assert.equal(tasksFor(event, other).length, 4)
+  assert.equal(tasksFor(event, server).length, 5)
+  assert.equal(tasksFor(event, room)[0].text, 'Upravená spoločná kontrola')
+  assert.ok(tasksFor(event, room).some((t) => t.id === ownTask.id && t.text === ownTask.text))
+  assert.ok(!tasksFor(event, server).some((t) => t.id === 'new-room'))
+  assert.equal(event.progress[room.id].tasks[ownTask.id], true)
+  assert.equal(event.progress[room.id].tasks[event.templates.room[0].id], true)
+  assert.equal(event.progress[room.id].note, 'Zachovaná poznámka')
+  assert.equal(event.progress[room.id].flags.master, true)
+  assert.equal(event.progress[room.id].done, false)
+  const after = JSON.stringify(event)
+  applyTemplateUpdate(event, structuredClone(templates), true)
+  assert.equal(JSON.stringify(event), after)
+  assert.doesNotThrow(() => validateBackup({ version: 1, events: [event] }))
+})
+
+test('odmietnutie doplnenia uloží spoločné šablóny a zachová vlastné zoznamy', () => {
+  const event = makeDemo(),
+    room = event.places[0],
+    server = event.places.at(-1)
+  setPlaceTasks(event, room, event.templates.room)
+  setPlaceTasks(event, server, event.templates.server)
+  const before = JSON.stringify(event.taskOverrides),
+    ownProgress = JSON.stringify(event.progress[room.id])
+  const templates = structuredClone(event.templates)
+  templates.room.push({ id: 'shared-new', text: 'Nová kontrola' })
+  applyTemplateUpdate(event, templates, false)
+  assert.equal(JSON.stringify(event.taskOverrides), before)
+  assert.equal(JSON.stringify(event.progress[room.id]), ownProgress)
+  assert.equal(tasksFor(event, event.places[1]).length, 4)
+  assert.equal(isDone(event, event.places[1]), false)
+})
+
+test('odstránenie úlohy zo spoločnej šablóny nezmaže úlohu vo vlastnom pláne', () => {
+  const event = makeDemo(),
+    room = event.places[0]
+  setPlaceTasks(event, room, event.templates.room)
+  const templates = structuredClone(event.templates),
+    removed = templates.room.shift()
+  applyTemplateUpdate(event, templates, true)
+  assert.ok(tasksFor(event, room).some((t) => t.id === removed.id))
+  assert.equal(tasksFor(event, room).length, 3)
+  assert.equal(tasksFor(event, event.places[1]).length, 2)
+  assert.equal(isDone(event, room), true)
+})
+
+test('príliš dlhý vlastný plán sa nezmení ani čiastočne a odmietnutie môže uložiť šablónu', () => {
+  const event = makeDemo(),
+    room = event.places[0]
+  setPlaceTasks(
+    event,
+    room,
+    Array.from({ length: 50 }, (_, i) => ({ id: `local-${i}`, text: `Vlastná úloha ${i}` })),
+  )
+  const before = JSON.stringify(event),
+    templates = structuredClone(event.templates)
+  templates.room.push({ id: 'new-room', text: 'Nová úloha' })
+  assert.equal(previewTemplateUpdate(event, templates).overflow.length, 1)
+  assert.throws(() => applyTemplateUpdate(event, templates, true), /50 úloh/)
+  assert.equal(JSON.stringify(event), before)
+  applyTemplateUpdate(event, templates, false)
+  assert.equal(tasksFor(event, room).length, 50)
+  assert.equal(event.templates.room.length, 4)
 })

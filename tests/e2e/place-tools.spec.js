@@ -38,6 +38,7 @@ test('vlastný zoznam izby zostane oddelený od šablóny a dá sa obnoviť', as
   dialog = page.getByRole('dialog')
   await dialog.getByLabel('Izba: úloha 1').fill('Nová spoločná kontrola')
   await dialog.getByRole('button', { name: 'Uložiť šablóny' }).click()
+  await page.getByRole('dialog').getByRole('button', { name: 'Nie, iba spoločnú šablónu' }).click()
   await page.locator('.place-row').first().click()
   await expect(page.getByRole('checkbox', { name: 'Skontrolovať sieťovú zásuvku' })).toBeVisible()
   await expect(page.getByRole('checkbox', { name: 'Nová spoločná kontrola' })).toHaveCount(0)

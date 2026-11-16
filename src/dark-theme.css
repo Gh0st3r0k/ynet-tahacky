@@ -696,3 +696,11 @@
 :root[data-theme='dark'] .pattern-feedback {
   color: var(--success-text);
 }
+
+:root[data-theme='dark'] .template-update-summary {
+  background: var(--surface-raised);
+  border-color: var(--line);
+}
+:root[data-theme='dark'] .template-update-summary strong {
+  color: var(--ink);
+}

@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onMounted, onUnmounted, reactive, ref, watch } from 'vue'
+import { computed, nextTick, onMounted, onUnmounted, reactive, ref, watch } from 'vue'
 import Icon from './components/Icon.vue'
 import BuildingArt from './components/BuildingArt.vue'
 import CreateActivity from './components/CreateActivity.vue'
@@ -21,6 +21,8 @@ import {
   taskCount,
   hasTaskOverride,
   setPlaceTasks,
+  previewTemplateUpdate,
+  applyTemplateUpdate,
   ROOM_PATTERNS,
   matchesRoomPattern,
   placeStatusFor,
@@ -90,6 +92,15 @@ const placeSearch = ref(''),
 const picker = ref(false),
   editingTemplates = ref(false),
   draftTemplates = ref(null)
+const pendingTemplates = ref(null),
+  templateUpdateError = ref('')
+const templateDecisionBody = ref(null),
+  templateSaveButton = ref(null)
+const templateUpdatePreview = computed(() =>
+  pendingTemplates.value && event.value
+    ? previewTemplateUpdate(event.value, pendingTemplates.value)
+    : null,
+)
 const editingPlaceTasks = ref(false),
   draftPlaceTasks = ref([])
 const deleteTarget = ref(null),
@@ -265,23 +276,51 @@ function resetPlaceFilters() {
 }
 function startTemplateEdit() {
   draftTemplates.value = structuredClone(JSON.parse(JSON.stringify(event.value.templates)))
+  pendingTemplates.value = null
+  templateUpdateError.value = ''
   editingTemplates.value = true
 }
-function saveTemplates() {
-  event.value.templates = Object.fromEntries(
+function prepareTemplates() {
+  return Object.fromEntries(
     ['room', 'server'].map((kind) => [
       kind,
       draftTemplates.value[kind]
-        .filter((t) => t.text.trim())
-        .map((t) => ({ ...t, text: t.text.trim() })),
+        .filter((task) => task.text.trim())
+        .map((task) => ({ ...task, text: task.text.trim() })),
     ]),
   )
-  event.value.places.forEach((p) => {
-    if (event.value.progress[p.id]?.done && !isDone(event.value, p))
-      event.value.progress[p.id].done = false
-  })
+}
+function saveTemplates() {
+  const templates = prepareTemplates()
+  if (previewTemplateUpdate(event.value, templates).updates.length) {
+    pendingTemplates.value = templates
+    nextTick(() => templateDecisionBody.value?.focus())
+    return
+  }
+  commitTemplateUpdate(false)
+}
+function closeTemplateEditor() {
   editingTemplates.value = false
-  notify('Šablóny úloh boli aktualizované.')
+  pendingTemplates.value = null
+  templateUpdateError.value = ''
+}
+function backToTemplateEdit() {
+  pendingTemplates.value = null
+  templateUpdateError.value = ''
+  nextTick(() => templateSaveButton.value?.focus())
+}
+function commitTemplateUpdate(includeCustom) {
+  try {
+    applyTemplateUpdate(event.value, pendingTemplates.value || prepareTemplates(), includeCustom)
+    closeTemplateEditor()
+    notify(
+      includeCustom
+        ? 'Šablóny aj vlastné zoznamy úloh boli aktualizované.'
+        : 'Spoločné šablóny úloh boli aktualizované.',
+    )
+  } catch (error) {
+    templateUpdateError.value = error.message
+  }
 }
 function removeEvent() {
   data.value.events = data.value.events.filter((e) => e.id !== deleteTarget.value.id)
@@ -1059,19 +1098,66 @@ onUnmounted(() => {
   <RoomPicker v-if="picker && event" :event="event" @choose="choosePlace" @close="picker = false" />
   <Modal
     v-if="editingTemplates && event"
-    title="Šablóny úloh"
-    wide
-    @close="editingTemplates = false"
-    ><div class="modal-body">
+    :title="pendingTemplates ? 'Aktualizovať aj vlastné zoznamy?' : 'Šablóny úloh'"
+    :wide="!pendingTemplates"
+    @close="closeTemplateEditor"
+  >
+    <div
+      v-if="pendingTemplates"
+      ref="templateDecisionBody"
+      class="modal-body template-update-decision"
+      tabindex="-1"
+    >
+      <p>
+        V aktivite sú miesta s vlastným plánom. Chcete do ich zoznamov pridať aj úlohy zo zmenenej
+        spoločnej šablóny?
+      </p>
+      <div class="template-update-summary">
+        <p>
+          <strong>Miest s vlastným zoznamom: {{ templateUpdatePreview.updates.length }}</strong>
+        </p>
+        <p>
+          Nové úlohy:
+          {{ templateUpdatePreview.updates.reduce((sum, update) => sum + update.added, 0) }} ·
+          Upravené úlohy:
+          {{ templateUpdatePreview.updates.reduce((sum, update) => sum + update.updated, 0) }}
+        </p>
+      </div>
+      <p class="small muted">
+        Vlastné úlohy, zaškrtnutia, poznámky a príznaky zachováme. Spoločné úlohy doplníme bez
+        opakovania a aktualizujeme ich názvy. Žiadne úlohy z vlastných zoznamov neodstránime. Nová
+        nesplnená úloha znovu otvorí hotové miesto.
+      </p>
+      <p v-if="templateUpdatePreview.overflow.length" class="form-error" role="alert">
+        Počet miest, ktoré by prekročili limit 50 úloh: {{ templateUpdatePreview.overflow.length }}.
+        Skráťte ich vlastné zoznamy alebo uložte iba spoločnú šablónu.
+      </p>
+      <p v-if="templateUpdateError" class="form-error" role="alert">{{ templateUpdateError }}</p>
+      <div class="modal-actions template-update-actions">
+        <button
+          class="button primary"
+          :disabled="!!templateUpdatePreview.overflow.length"
+          @click="commitTemplateUpdate(true)"
+        >
+          <Icon name="plus" :size="17" /> Áno, doplniť aj vlastné zoznamy
+        </button>
+        <button class="button secondary" @click="commitTemplateUpdate(false)">
+          Nie, iba spoločnú šablónu
+        </button>
+        <button class="text-button" @click="backToTemplateEdit">
+          <Icon name="back" :size="16" /> Späť k úpravám
+        </button>
+      </div>
+    </div>
+    <div v-else class="modal-body">
       <p class="muted modal-explainer">
-        Zmeny sa použijú na miesta so spoločnou šablónou. Miesta s vlastným zoznamom zostanú
-        nezmenené. Existujúce zaškrtnutia zostanú zachované. Pridaná nesplnená úloha znovu otvorí
-        hotové miesto.
+        Úpravy platia pre spoločné šablóny. Ak majú dotknuté miesta vlastný plán, pred uložením sa
+        opýtame, či úlohy doplniť aj tam. Existujúce zaškrtnutia zostanú zachované.
       </p>
       <TaskEditor :model-value="draftTemplates" />
       <div class="modal-actions">
-        <button class="button secondary" @click="editingTemplates = false">Zrušiť</button
-        ><button class="button primary" @click="saveTemplates">
+        <button class="button secondary" @click="closeTemplateEditor">Zrušiť</button
+        ><button ref="templateSaveButton" class="button primary" @click="saveTemplates">
           <Icon name="check" :size="17" /> Uložiť šablóny
         </button>
       </div>

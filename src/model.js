@@ -103,6 +103,46 @@ export function setPlaceTasks(event, place, tasks) {
       .map((t) => ({ id: t.id, text: t.text.trim() }))
   if (event.progress[place.id]?.done && !isDone(event, place)) event.progress[place.id].done = false
 }
+// Vlastné úlohy zachováme; spoločné aktualizujeme podľa stabilného identifikátora.
+export function previewTemplateUpdate(event, templates) {
+  const changedKinds = ['room', 'server'].filter(
+    (kind) => JSON.stringify(event.templates[kind]) !== JSON.stringify(templates[kind]),
+  )
+  const updates = event.places
+    .filter((place) => changedKinds.includes(place.kind) && hasTaskOverride(event, place))
+    .map((place) => {
+      const current = tasksFor(event, place)
+      const incoming = new Map(templates[place.kind].map((task) => [task.id, task]))
+      const existingIds = new Set(current.map((task) => task.id))
+      const added = templates[place.kind].filter((task) => !existingIds.has(task.id))
+      const updated = current.filter(
+        (task) => incoming.has(task.id) && incoming.get(task.id).text !== task.text,
+      ).length
+      const tasks = [
+        ...current.map((task) => ({ ...(incoming.get(task.id) || task) })),
+        ...added.map((task) => ({ ...task })),
+      ]
+      return { place, tasks, added: added.length, updated }
+    })
+  return { changedKinds, updates, overflow: updates.filter((update) => update.tasks.length > 50) }
+}
+export function applyTemplateUpdate(event, templates, includeCustom = false) {
+  const preview = previewTemplateUpdate(event, templates)
+  if (includeCustom && preview.overflow.length)
+    throw new Error(
+      'Vlastné zoznamy by prekročili limit 50 úloh. Skráťte ich alebo uložte len spoločnú šablónu.',
+    )
+  event.templates = Object.fromEntries(
+    ['room', 'server'].map((kind) => [kind, templates[kind].map((task) => ({ ...task }))]),
+  )
+  if (includeCustom) {
+    for (const { place, tasks } of preview.updates) event.taskOverrides[place.id] = tasks
+  }
+  for (const place of event.places) {
+    if (event.progress[place.id]?.done && !isDone(event, place))
+      event.progress[place.id].done = false
+  }
+}
 export const progressFor = (event, place) =>
   event.progress[place.id] || { tasks: {}, flags: {}, note: '', done: false }
 export const isDone = (event, place) =>
