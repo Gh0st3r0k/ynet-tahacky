@@ -3718,3 +3718,116 @@ main {
     min-height: 65px;
   }
 }
+
+/* Vlastné zoznamy a rýchle výbery miest. */
+.add-task {
+  margin-top: 18px;
+}
+.pattern-panel {
+  padding: 19px;
+  margin-top: 24px;
+  border: 1px solid #dfe5d3;
+  border-radius: 9px;
+  background: #f5f7ef;
+}
+.pattern-panel .subsection-heading {
+  margin-bottom: 16px;
+}
+.pattern-controls {
+  display: grid;
+  grid-template-columns: 1fr 1.25fr 1.1fr;
+  gap: 12px;
+  align-items: end;
+}
+.pattern-controls label {
+  display: grid;
+  gap: 7px;
+  font-size: 10px;
+  color: #6d795e;
+  min-width: 0;
+}
+.pattern-controls select {
+  width: 100%;
+  font-size: 11px;
+  padding: 10px;
+}
+.pattern-controls > button {
+  grid-column: 3;
+  justify-self: end;
+}
+.pattern-hint {
+  margin-top: 13px;
+  font-size: 10px;
+  color: #737e6b;
+}
+.pattern-feedback {
+  margin-top: 8px;
+  font-size: 11px;
+  color: #516d40;
+}
+.place-task-tools {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 9px;
+  margin: 0 0 17px;
+}
+.place-task-tools .text-button {
+  font-size: 10px;
+}
+.restore-template {
+  display: flex;
+  margin-top: 20px;
+}
+.active-place-filters {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 0 0 16px;
+  color: #738267;
+  font-size: 11px;
+}
+.place-filters {
+  flex-wrap: wrap;
+}
+@media (max-width: 950px) {
+  .pattern-controls {
+    grid-template-columns: 1fr 1fr;
+  }
+  .pattern-controls > button {
+    grid-column: 2;
+  }
+}
+@media (max-width: 600px) {
+  .pattern-panel {
+    padding: 16px 12px;
+  }
+  .pattern-controls {
+    grid-template-columns: 1fr;
+  }
+  .pattern-controls > button {
+    grid-column: 1;
+    justify-self: stretch;
+    min-height: 42px;
+  }
+  .pattern-controls select {
+    min-height: 42px;
+    font-size: 12px;
+  }
+  .place-filters {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+  .place-filters select {
+    width: 100%;
+    min-width: 0;
+  }
+  .place-task-tools {
+    gap: 7px;
+  }
+  .place-task-tools .text-button {
+    min-height: 36px;
+  }
+}

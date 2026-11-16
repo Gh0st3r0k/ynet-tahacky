@@ -13,11 +13,12 @@ Responzívna webová aplikácia na plánovanie a evidenciu práce na internátoc
 - Pre každý blok použiť 8 poschodí a samostatnú serverovňu.
 - Na poschodí vybrať osem izieb podľa zadaného zoznamu: `x1/1`, `x1/2`, `x2/1`, `x2/2`, `x4/1`, `x4/2`, `x5/1`, `x5/2`. `x` je číslo poschodia, napríklad `11/1` alebo `85/2`.
 - Na ostatných internátoch začať s pracovným blokom **Hlavná budova** a pridať vlastné pomenované bloky. Ich skutočné členenie nie je prednastavené; poschodia a číslovanie používajú rovnaký model ako Mladosť.
-- Nastaviť samostatné šablóny úloh pre izby a pre serverovne.
+- Nastaviť samostatné šablóny úloh pre izby a pre serverovne a vlastný zoznam úloh pre konkrétnu izbu alebo serverovňu.
 - Otvoriť rýchly výber **internát → blok → poschodie/serverovňa → izba**. Kroky s jedinou možnosťou sa preskakujú.
 - V každej miestnosti samostatne odškrtávať úlohy, zapísať poznámku a nastaviť príznaky **Otvorené generálnym kľúčom** a **Presúvalo sa vybavenie**.
 - Jedným tlačidlom sa vrátiť na výber ďalšej izby.
-- Zobraziť postup aktivity, vyhľadávať a filtrovať miesta podľa typu a dokončenia.
+- Použiť vzory výberu pre dvojlôžkové a trojlôžkové izby, párne/nepárne poschodia alebo serverovne.
+- Zobraziť postup aktivity, vyhľadávať a kombinovať filtre podľa vzoru miest a stavu vrátane rozpracovaných miest.
 - Exportovať a obnoviť všetky dáta v JSON zálohe. Import aj mazanie vyžadujú potvrdenie.
 - Vyskúšať ukážkovú aktivitu bez ručného vypĺňania. Ukážka vznikne až po kliknutí na príslušné tlačidlo.
 
@@ -36,7 +37,35 @@ Tlačidlom so slnkom/mesiacom v hornej lište alebo **Zmeniť tému** v bočnom 
 5. Splňte úlohy, prípadne pridajte príznaky a poznámku, a kliknite na **Označiť miesto ako hotové**. Bez splnenia všetkých úloh miesto nemožno dokončiť.
 6. Tlačidlom **Späť na výber izby** pokračujte na ďalšie miesto. Ukladanie prebieha automaticky.
 
-Šablóny možno upraviť aj neskôr v prehľade aktivity. Existujúce úlohy si zachovajú svoje zaškrtnutia. Nová nesplnená úloha spôsobí, že sa predtým hotové miesto znovu počíta ako rozpracované. Odstránenie úlohy zo šablóny ju odstráni zo všetkých príslušných miest.
+Šablóny možno upraviť aj neskôr v prehľade aktivity. Zmeny sa použijú iba na miesta, ktoré nemajú vlastný zoznam. Existujúce úlohy si zachovajú svoje zaškrtnutia. Nová nesplnená úloha znovu otvorí predtým hotové miesto. Odstránenie úlohy zo šablóny ju odstráni zo všetkých miest používajúcich danú šablónu.
+
+## Vlastné úlohy konkrétneho miesta
+
+V izbe alebo serverovni kliknite na **Upraviť úlohy miesta**. Editor začne aktuálnym zoznamom; úlohy môžete doplniť, premenovať alebo odstrániť. Po uložení ide o **Vlastný zoznam**, ktorý platí iba pre dané miesto. Spoločné šablóny ani ostatné miestnosti sa nemenia. Neskoršie úpravy spoločnej šablóny vlastný zoznam neprepíšu.
+
+Zaškrtnutia úloh, ktoré zostali v zozname, sa zachovajú. Pridaná nesplnená úloha znovu otvorí hotové miesto. Vlastný zoznam môže byť aj prázdny; miesto potom môžete dokončiť bez úloh. Tlačidlo **Obnoviť spoločnú šablónu** v editore odstráni vlastný zoznam a vráti miesto k aktuálnym spoločným úlohám.
+
+Vlastné úlohy aj ich postup sa ukladajú do localStorage a JSON záloh. Staršie zálohy bez vlastných zoznamov naďalej fungujú; pôvodné aktivity sa nemusia vytvárať znova.
+
+## Vzory výberu a filtre
+
+Pri vytváraní aktivity nájdete pod blokmi sekciu **Rýchly výber podľa vzoru**:
+
+- **Dvojlôžkové (/1)** vyberie izby končiace `/1`.
+- **Trojlôžkové (/2)** vyberie izby končiace `/2`.
+- **Izby · nepárne poschodia** alebo **Izby · párne poschodia** vyberie všetky izby na zodpovedajúcich poschodiach.
+- **Všetky izby**, **Iba serverovne** a **Všetky miesta** umožňujú ďalšie hromadné výbery.
+
+Zvoľte rozsah: aktuálny blok, označené bloky (bloky s aspoň jedným vybraným miestom), všetky bloky aktuálneho internátu alebo všetky zvolené internáty. Vzor môžete použiť na **nahradenie výberu v rozsahu**, **pridanie** alebo **odobratie**. Výber mimo rozsahu sa nemení. Pri nahradení vzorom izieb sa serverovne v danom rozsahu odznačia; na ich doplnenie použite **Iba serverovne → Pridať k výberu**.
+
+V už vytvorenej aktivite sú rovnaké vzory dostupné vo filtri **Typ miesta**. Kombinujú sa s vyhľadávaním a filtrom **Stav miesta**:
+
+- **Čaká · nezačaté**: zatiaľ žiadna splnená aktuálna úloha, príznak ani neprázdna poznámka.
+- **Rozpracované · začaté**: aspoň jedna splnená aktuálna úloha, zapnutý príznak alebo neprázdna poznámka, ale miesto ešte nie je hotové.
+- **Všetky nedokončené**: čakajúce aj rozpracované miesta.
+- **Hotové**: všetky aktuálne úlohy sú splnené a miesto je označené ako hotové.
+
+Samotné otvorenie miestnosti ani plánovanie vlastných úloh ju neoznačí ako rozpracovanú. Filtre nemenia dáta aktivity a tlačidlom **Zrušiť filtre** sa vrátite k celému zoznamu.
 
 ## Lokálne spustenie
 
@@ -118,7 +147,7 @@ Testy pokrývajú vytvorenie aktivity, hromadný výber a jeho zrušenie, vlastn
 
 ## Ukladanie, zálohy a obmedzenia
 
-- Kľúč v localStorage je `ynet-aktivity-v1`. Formát obsahuje `version: 1`, aktivity, vybrané miesta, šablóny a postup každého miesta.
+- Kľúč v localStorage je `ynet-aktivity-v1`. Formát obsahuje `version: 1`, aktivity, vybrané miesta, šablóny, voliteľné `taskOverrides` pre vlastné zoznamy a postup každého miesta.
 - Dáta sú viazané na konkrétny prehliadač a origin stránky. Lokálny server a GitHub Pages nemajú spoločné dáta. Na prenos použite **Správa dát → Exportovať všetky dáta**, potom **Obnoviť zo zálohy** na druhom zariadení.
 - **Obnova nahradí všetky aktuálne aktivity.** Import nie je zlúčenie dát. Pred importom si uložte aktuálnu zálohu.
 - Neexistuje serverová synchronizácia, spolupráca v reálnom čase, používateľské účty ani riadenie oprávnení. Ktokoľvek s prístupom k prehliadaču môže vidieť miestne údaje.
@@ -139,11 +168,13 @@ src/
     CreateActivity.vue        Trojkrokové vytvorenie aktivity a výber miest
     RoomPicker.vue            Hierarchický výber s preskakovaním krokov
     TaskEditor.vue            Samostatné šablóny pre izby a serverovne
+    TaskListEditor.vue        Editor spoločných aj vlastných zoznamov úloh
     Modal.vue                 Dialóg s ovládaním klávesnicou a zameraním
     Icon.vue                  Ikony Lucide
     BuildingArt.vue           Ilustrácia internátu
 public/favicon.svg
 tests/model.test.js           Testy dátového modelu
 tests/e2e/activity.spec.js     Testy v prehliadači
+tests/e2e/place-tools.spec.js  Vlastné úlohy, vzory výberu a stavové filtre
 .github/workflows/pages.yml   Overenie a nasadenie
 ```

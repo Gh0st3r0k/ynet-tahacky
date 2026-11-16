@@ -683,3 +683,16 @@
     font-size: 8px;
   }
 }
+
+:root[data-theme='dark'] .pattern-panel {
+  background: #19191c;
+  border-color: var(--line);
+}
+:root[data-theme='dark'] .pattern-controls label,
+:root[data-theme='dark'] .pattern-hint,
+:root[data-theme='dark'] .active-place-filters {
+  color: var(--muted);
+}
+:root[data-theme='dark'] .pattern-feedback {
+  color: var(--success-text);
+}

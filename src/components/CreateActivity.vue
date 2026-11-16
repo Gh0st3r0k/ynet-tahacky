@@ -2,7 +2,17 @@
 import { computed, reactive, ref } from 'vue'
 import Icon from './Icon.vue'
 import TaskEditor from './TaskEditor.vue'
-import { DORMS, FLOORS, ROOM_SUFFIXES, blockPlaces, placeId, makeTemplates, uid } from '../model'
+import {
+  DORMS,
+  FLOORS,
+  ROOM_SUFFIXES,
+  blockPlaces,
+  placeId,
+  makeTemplates,
+  uid,
+  ROOM_PATTERNS,
+  applySelectionPattern,
+} from '../model'
 const emit = defineEmits(['create', 'cancel'])
 const step = ref(1)
 const name = ref(''),
@@ -16,6 +26,42 @@ const activeDorm = ref('mladost'),
   activeBlock = ref('A1'),
   newBlock = ref('')
 const selection = reactive(new Map())
+const pattern = ref('double'),
+  patternScope = ref('block'),
+  patternMode = ref('replace')
+const patternFeedback = ref('')
+const patternPlaces = computed(() => {
+  if (patternScope.value === 'block') return currentPlaces.value
+  if (patternScope.value === 'selected') {
+    const keys = new Set(selectedPlaces.value.map((p) => JSON.stringify([p.dorm, p.block])))
+    return dorms.flatMap((d) =>
+      d.blocks
+        .filter((b) => keys.has(JSON.stringify([d.id, b])))
+        .flatMap((b) => blockPlaces(d.id, b)),
+    )
+  }
+  const targets =
+    patternScope.value === 'dorm'
+      ? [currentDorm.value]
+      : dorms.filter((d) => selectedDorms.value.includes(d.id))
+  return targets.flatMap((d) => d.blocks.flatMap((b) => blockPlaces(d.id, b)))
+})
+function applyPattern() {
+  if (!patternPlaces.value.length) {
+    patternFeedback.value = 'Najprv označte aspoň jeden blok alebo miestnosť.'
+    return
+  }
+  const result = applySelectionPattern(
+    selectedPlaces.value,
+    patternPlaces.value,
+    pattern.value,
+    patternMode.value,
+  )
+  selection.clear()
+  result.forEach((p) => selection.set(p.id, p))
+  patternFeedback.value = `Vzor je použitý. Vybraných miest: ${result.length}.`
+  error.value = ''
+}
 const currentDorm = computed(() => dorms.find((d) => d.id === activeDorm.value))
 const selectedPlaces = computed(() => [...selection.values()])
 const roomCount = computed(() => selectedPlaces.value.filter((p) => p.kind === 'room').length)
@@ -118,6 +164,7 @@ function submit() {
         templates[k].filter((t) => t.text.trim()).map((t) => ({ ...t, text: t.text.trim() })),
       ]),
     ),
+    taskOverrides: {},
     progress: {},
   })
 }
@@ -288,6 +335,50 @@ function submit() {
             </button>
             <p>Predvolená budova je pracovný návrh. Bloky si pridajte podľa potreby.</p>
           </div>
+          <section class="pattern-panel" aria-labelledby="pattern-heading">
+            <div class="subsection-heading">
+              <div>
+                <h3 id="pattern-heading">
+                  <Icon name="filter" :size="17" /> Rýchly výber podľa vzoru
+                </h3>
+                <p>Dvojlôžkové izby končia /1, trojlôžkové /2.</p>
+              </div>
+            </div>
+            <div class="pattern-controls">
+              <label
+                >Vzor miest<select v-model="pattern" aria-label="Vzor miest">
+                  <option v-for="p in ROOM_PATTERNS" :key="p.id" :value="p.id">
+                    {{ p.label }}
+                  </option>
+                </select></label
+              >
+              <label
+                >Rozsah výberu<select v-model="patternScope" aria-label="Rozsah výberu">
+                  <option value="block">Aktuálny blok {{ activeBlock }}</option>
+                  <option value="selected">Označené bloky ({{ blockCount }})</option>
+                  <option value="dorm">Všetky bloky · {{ currentDorm.name }}</option>
+                  <option value="dorms">Všetky zvolené internáty</option>
+                </select></label
+              >
+              <label
+                >Spôsob výberu<select v-model="patternMode" aria-label="Spôsob výberu">
+                  <option value="replace">Nahradiť výber v rozsahu</option>
+                  <option value="add">Pridať k výberu</option>
+                  <option value="remove">Odobrať z výberu</option>
+                </select></label
+              >
+              <button type="button" class="button secondary small-button" @click="applyPattern">
+                <Icon name="checks" :size="16" /> Použiť vzor
+              </button>
+            </div>
+            <p class="pattern-hint">
+              Pri nahradení sa v zvolenom rozsahu vyberú iba miesta podľa vzoru. Výber mimo rozsahu
+              zostane zachovaný.
+            </p>
+            <p v-if="patternFeedback" class="pattern-feedback" role="status">
+              {{ patternFeedback }}
+            </p>
+          </section>
           <div class="floor-editor">
             <div class="subsection-heading">
               <div>

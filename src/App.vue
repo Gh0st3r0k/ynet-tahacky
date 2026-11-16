@@ -4,6 +4,7 @@ import Icon from './components/Icon.vue'
 import BuildingArt from './components/BuildingArt.vue'
 import CreateActivity from './components/CreateActivity.vue'
 import TaskEditor from './components/TaskEditor.vue'
+import TaskListEditor from './components/TaskListEditor.vue'
 import Modal from './components/Modal.vue'
 import RoomPicker from './components/RoomPicker.vue'
 import {
@@ -18,7 +19,12 @@ import {
   completedCount,
   completedTasks,
   taskCount,
-  isTouched,
+  hasTaskOverride,
+  setPlaceTasks,
+  ROOM_PATTERNS,
+  matchesRoomPattern,
+  placeStatusFor,
+  PLACE_STATUS_LABELS,
   makeDemo,
   validateBackup,
 } from './model'
@@ -84,6 +90,8 @@ const placeSearch = ref(''),
 const picker = ref(false),
   editingTemplates = ref(false),
   draftTemplates = ref(null)
+const editingPlaceTasks = ref(false),
+  draftPlaceTasks = ref([])
 const deleteTarget = ref(null),
   resetConfirm = ref(false),
   importPreview = ref(null),
@@ -92,6 +100,7 @@ const hasModal = computed(
   () =>
     picker.value ||
     editingTemplates.value ||
+    editingPlaceTasks.value ||
     deleteTarget.value ||
     resetConfirm.value ||
     importPreview.value,
@@ -146,11 +155,13 @@ const remainingTasks = computed(() =>
 )
 const filteredPlaces = computed(() =>
   (event.value?.places || [])
-    .filter((p) => kindFilter.value === 'all' || p.kind === kindFilter.value)
+    .filter((p) => matchesRoomPattern(p, kindFilter.value))
     .filter(
       (p) =>
         placeStatus.value === 'all' ||
-        (placeStatus.value === 'done' ? isDone(event.value, p) : !isDone(event.value, p)),
+        (placeStatus.value === 'pending'
+          ? !isDone(event.value, p)
+          : placeStatusFor(event.value, p) === placeStatus.value),
     )
     .filter((p) =>
       `${dormName(p.dorm)} ${p.block} ${floorName(p.floor)} ${placeName(p)}`
@@ -187,6 +198,7 @@ function onHashChange() {
   route.value = location.hash.slice(1) || '/'
   mobileNav.value = false
   picker.value = false
+  editingPlaceTasks.value = false
   placeSearch.value = ''
   visibleCount.value = 40
   window.scrollTo(0, 0)
@@ -231,6 +243,25 @@ function completePlace() {
   notify(
     currentProgress.value.done ? 'Miesto je označené ako hotové.' : 'Miesto je opäť rozpracované.',
   )
+}
+function startPlaceTaskEdit() {
+  draftPlaceTasks.value = currentTasks.value.map((task) => ({ ...task }))
+  editingPlaceTasks.value = true
+}
+function savePlaceTaskEdit() {
+  setPlaceTasks(event.value, place.value, draftPlaceTasks.value)
+  editingPlaceTasks.value = false
+  notify('Vlastné úlohy pre toto miesto boli uložené.')
+}
+function restorePlaceTemplate() {
+  setPlaceTasks(event.value, place.value, null)
+  editingPlaceTasks.value = false
+  notify('Miesto opäť používa spoločnú šablónu úloh.')
+}
+function resetPlaceFilters() {
+  kindFilter.value = 'all'
+  placeStatus.value = 'all'
+  placeSearch.value = ''
 }
 function startTemplateEdit() {
   draftTemplates.value = structuredClone(JSON.parse(JSON.stringify(event.value.templates)))
@@ -680,15 +711,26 @@ onUnmounted(() => {
               /></label>
               <div class="place-filters">
                 <select v-model="kindFilter" aria-label="Typ miesta">
-                  <option value="all">Všetky miesta</option>
-                  <option value="room">Iba izby</option>
-                  <option value="server">Iba serverovne</option></select
+                  <option v-for="pattern in ROOM_PATTERNS" :key="pattern.id" :value="pattern.id">
+                    {{ pattern.label }}
+                  </option></select
                 ><select v-model="placeStatus" aria-label="Stav miesta">
                   <option value="all">Všetky stavy</option>
-                  <option value="pending">Nedokončené</option>
+                  <option value="waiting">Čaká · nezačaté</option>
+                  <option value="started">Rozpracované · začaté</option>
+                  <option value="pending">Všetky nedokončené</option>
                   <option value="done">Hotové</option>
                 </select>
               </div>
+            </div>
+            <div
+              v-if="kindFilter !== 'all' || placeStatus !== 'all' || placeSearch"
+              class="active-place-filters"
+            >
+              <span>{{ filteredPlaces.length }} z {{ event.places.length }} miest</span>
+              <button class="text-button" @click="resetPlaceFilters">
+                <Icon name="close" :size="14" /> Zrušiť filtre
+              </button>
             </div>
             <div class="place-list-head">
               <span>Miesto</span><span>Úlohy</span><span>Príznaky</span><span>Stav</span
@@ -731,11 +773,13 @@ onUnmounted(() => {
                 ><span
                   class="tag row-status"
                   :class="
-                    isDone(event, p) ? 'green-tag' : isTouched(event, p) ? 'yellow-tag' : 'neutral'
+                    placeStatusFor(event, p) === 'done'
+                      ? 'green-tag'
+                      : placeStatusFor(event, p) === 'started'
+                        ? 'yellow-tag'
+                        : 'neutral'
                   "
-                  >{{
-                    isDone(event, p) ? 'Hotové' : isTouched(event, p) ? 'Rozpracované' : 'Čaká'
-                  }}</span
+                  >{{ PLACE_STATUS_LABELS[placeStatusFor(event, p)] }}</span
                 ><Icon name="right" :size="18" />
               </button>
             </div>
@@ -782,9 +826,17 @@ onUnmounted(() => {
                   <p>{{ event.name }}</p>
                 </div>
               </div>
-              <span class="tag" :class="isDone(event, place) ? 'green-tag' : 'yellow-tag'">{{
-                isDone(event, place) ? 'Hotové' : 'Rozpracované'
-              }}</span>
+              <span
+                class="tag"
+                :class="
+                  placeStatusFor(event, place) === 'done'
+                    ? 'green-tag'
+                    : placeStatusFor(event, place) === 'started'
+                      ? 'yellow-tag'
+                      : 'neutral'
+                "
+                >{{ PLACE_STATUS_LABELS[placeStatusFor(event, place)] }}</span
+              >
             </div>
             <div class="room-work-grid">
               <section class="panel task-panel">
@@ -806,6 +858,16 @@ onUnmounted(() => {
                   </div>
                   <button v-if="currentTasks.length" class="text-button" @click="toggleAllTasks">
                     {{ allTasksDone ? 'Zrušiť výber' : 'Označiť všetky' }}
+                  </button>
+                </div>
+                <div class="place-task-tools">
+                  <span class="tag neutral"
+                    ><Icon :name="hasTaskOverride(event, place) ? 'edit' : 'copy'" :size="12" />{{
+                      hasTaskOverride(event, place) ? 'Vlastný zoznam' : 'Spoločná šablóna'
+                    }}</span
+                  >
+                  <button class="text-button" @click="startPlaceTaskEdit">
+                    <Icon name="edit" :size="14" /> Upraviť úlohy miesta
                   </button>
                 </div>
                 <div class="task-progress progress-track">
@@ -832,8 +894,8 @@ onUnmounted(() => {
                   <div v-if="!currentTasks.length" class="no-tasks">
                     <Icon name="tasks" :size="28" />
                     <p>Pre toto miesto zatiaľ nie sú úlohy.</p>
-                    <button class="text-button" @click="startTemplateEdit">
-                      Nastaviť šablóny úloh
+                    <button class="text-button" @click="startPlaceTaskEdit">
+                      Pridať úlohy pre toto miesto
                     </button>
                   </div>
                 </div>
@@ -1002,8 +1064,9 @@ onUnmounted(() => {
     @close="editingTemplates = false"
     ><div class="modal-body">
       <p class="muted modal-explainer">
-        Zmeny sa použijú na všetky miesta v aktivite. Existujúce zaškrtnutia zostanú zachované.
-        Pridaná nesplnená úloha znovu otvorí hotové miesto.
+        Zmeny sa použijú na miesta so spoločnou šablónou. Miesta s vlastným zoznamom zostanú
+        nezmenené. Existujúce zaškrtnutia zostanú zachované. Pridaná nesplnená úloha znovu otvorí
+        hotové miesto.
       </p>
       <TaskEditor :model-value="draftTemplates" />
       <div class="modal-actions">
@@ -1014,6 +1077,32 @@ onUnmounted(() => {
       </div>
     </div></Modal
   >
+  <Modal
+    v-if="editingPlaceTasks && place"
+    :title="`Úlohy: ${placeName(place)}`"
+    @close="editingPlaceTasks = false"
+  >
+    <div class="modal-body place-task-editor">
+      <p class="muted modal-explainer">
+        Upravujete iba toto miesto: {{ placeName(place) }} v bloku {{ place.block }}. Úlohy
+        ostatných miest zostanú nezmenené. Nová nesplnená úloha znovu otvorí hotové miesto.
+      </p>
+      <TaskListEditor v-model="draftPlaceTasks" label="Miesto" />
+      <button
+        v-if="hasTaskOverride(event, place)"
+        class="text-button restore-template"
+        @click="restorePlaceTemplate"
+      >
+        <Icon name="reset" :size="16" /> Obnoviť spoločnú šablónu
+      </button>
+      <div class="modal-actions">
+        <button class="button secondary" @click="editingPlaceTasks = false">Zrušiť</button
+        ><button class="button primary" @click="savePlaceTaskEdit">
+          <Icon name="check" :size="17" /> Uložiť úlohy miesta
+        </button>
+      </div>
+    </div>
+  </Modal>
   <Modal v-if="deleteTarget" title="Odstrániť aktivitu?" @close="deleteTarget = null"
     ><div class="modal-body">
       <p>
