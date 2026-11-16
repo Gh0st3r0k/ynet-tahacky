@@ -11,7 +11,7 @@
         color-scheme: dark;
       }
       html[data-theme='light'] {
-        background: #f7f8f5;
+        background: #f5f2ee;
         color-scheme: light;
       }
     </style>
@@ -21,7 +21,7 @@
         const theme = localStorage.getItem('ynet-theme') === 'light' ? 'light' : 'dark'
         document.documentElement.dataset.theme = theme
         document.querySelector('meta[name="theme-color"]').content =
-          theme === 'dark' ? '#09090b' : '#f7f8f5'
+          theme === 'dark' ? '#09090b' : '#f5f2ee'
       } catch {}
     </script>
     <meta

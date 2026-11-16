@@ -155,37 +155,6 @@ strong {
   margin: 0 0 53px 10px;
   color: #fff;
 }
-.brand-mark {
-  width: 40px;
-  height: 44px;
-  border-radius: 12px;
-  background: var(--yellow);
-  display: grid;
-  place-items: center;
-  color: #252b26;
-}
-.brand-mark svg {
-  width: 27px;
-  height: 27px;
-}
-.brand > span:last-child {
-  font-family: 'Manrope', sans-serif;
-  font-size: 34px;
-  font-weight: 800;
-  letter-spacing: -1.7px;
-  line-height: 1;
-}
-.brand-dot {
-  color: var(--yellow);
-}
-.brand small {
-  display: block;
-  color: #9daaa0;
-  font-size: 9px;
-  font-weight: 600;
-  letter-spacing: 3.4px;
-  margin: 8px 0 0 3px;
-}
 .workspace-label {
   font-size: 9px;
   letter-spacing: 1.9px;
@@ -2422,13 +2391,6 @@ main {
     margin-left: 8px;
     gap: 9px;
   }
-  .brand > span:last-child {
-    font-size: 30px;
-  }
-  .brand-mark {
-    width: 35px;
-    height: 39px;
-  }
   .workspace-label {
     font-size: 8px;
     letter-spacing: 1.3px;
@@ -3859,4 +3821,183 @@ main {
 .template-update-actions .text-button {
   align-self: center;
   min-height: 36px;
+}
+
+/* Originálny SVG súbor je vložený lokálne, bez prekreslenia. */
+.brand-logo {
+  display: block;
+  width: 154px;
+  height: 39px;
+}
+.brand-logo svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+:root[data-theme='dark'] .brand-logo svg > g:nth-of-type(2) {
+  fill: #f4f4f5;
+}
+
+/* Nová téma sa od miesta kliknutia odhalí cez pôvodnú snímku stránky. */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+::view-transition-old(root) {
+  z-index: 1;
+}
+::view-transition-new(root) {
+  z-index: 2;
+}
+::view-transition-image-pair(root) {
+  isolation: isolate;
+}
+
+.floor-tabs {
+  display: grid;
+  grid-template-columns: repeat(8, minmax(0, 1fr));
+  gap: 7px;
+  margin: 0 0 16px;
+}
+.floor-tabs button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  border: 1px solid var(--border-strong, #d5dbcc);
+  border-radius: 7px;
+  background: var(--surface, #fff);
+}
+.floor-tabs strong {
+  font-size: 13px;
+}
+.floor-tabs small {
+  font-size: 9px;
+  color: var(--muted);
+}
+.floor-tabs button.active {
+  border-color: var(--yellow);
+  background: var(--accent-soft, #fff7df);
+  color: var(--accent-text, #967425);
+  box-shadow: inset 0 0 0 1px var(--yellow);
+}
+.picker-options.floor-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+.picker-options.block-picker-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+.picker-options.dorm-picker-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.picker-options.floor-grid .picker-option,
+.picker-options.block-picker-grid .picker-option {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 12px 5px;
+  min-height: 68px;
+  gap: 0;
+}
+.picker-options.block-picker-grid .picker-option {
+  min-height: 58px;
+}
+.picker-options.floor-grid .picker-option > .icon-box,
+.picker-options.block-picker-grid .picker-option > .icon-box,
+.picker-options.floor-grid .picker-option > svg,
+.picker-options.block-picker-grid .picker-option > svg {
+  display: none;
+}
+.picker-options.floor-grid .picker-option strong,
+.picker-options.block-picker-grid .picker-option strong {
+  font-size: 12px;
+}
+:root[data-theme] .picker-options .picker-option.completed {
+  border-color: var(--success-border, #bfceae);
+  background: var(--success-soft, #f2f7ec);
+}
+:root[data-theme] .picker-options .picker-option.completed strong {
+  color: var(--success-text, #62834c);
+}
+.picker-options.dorm-picker-grid .picker-option {
+  padding: 12px;
+  gap: 9px;
+}
+.picker-options.dorm-picker-grid .picker-option > svg {
+  display: none;
+}
+@media (max-width: 600px) {
+  .floor-tabs {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+  .floor-editor .room-chips {
+    margin-bottom: 2px;
+  }
+  .picker-options.floor-grid .picker-option {
+    min-height: 66px;
+  }
+  .picker-options.floor-grid .picker-option strong {
+    font-size: 11px;
+  }
+  .picker-options.block-picker-grid .picker-option strong {
+    font-size: 11px;
+  }
+  .picker-options.dorm-picker-grid .picker-option {
+    display: block;
+    text-align: left;
+    min-height: 68px;
+  }
+  .picker-options.dorm-picker-grid .icon-box {
+    display: none;
+  }
+}
+@media (max-height: 650px) {
+  .picker-content {
+    padding: 14px 18px 17px;
+  }
+  .picker-options {
+    margin-top: 14px;
+    gap: 6px;
+  }
+  .picker-options.floor-grid .picker-option {
+    min-height: 56px;
+    padding: 9px 4px;
+  }
+  .picker-back {
+    margin-top: 14px;
+    min-height: 36px;
+  }
+}
+@media (max-width: 600px) {
+  .theme-toggle,
+  .mobile-menu,
+  .mobile-close {
+    width: 44px;
+    min-width: 44px;
+    height: 44px;
+  }
+  .room-page {
+    padding-bottom: 72px;
+  }
+  .room-page .back-to-picker {
+    position: fixed;
+    bottom: 14px;
+    left: 17px;
+    right: 17px;
+    width: auto;
+    max-width: none;
+    margin: 0;
+    z-index: 20;
+    min-height: 48px;
+    box-shadow: 0 4px 18px #0003;
+  }
+}
+@media (max-width: 360px) {
+  .storage-status {
+    font-size: 0;
+    gap: 0;
+  }
 }

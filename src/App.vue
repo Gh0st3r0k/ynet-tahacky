@@ -1,6 +1,7 @@
 <script setup>
 import { computed, nextTick, onMounted, onUnmounted, reactive, ref, watch } from 'vue'
 import Icon from './components/Icon.vue'
+import BrandLogo from './components/BrandLogo.vue'
 import BuildingArt from './components/BuildingArt.vue'
 import CreateActivity from './components/CreateActivity.vue'
 import TaskEditor from './components/TaskEditor.vue'
@@ -32,6 +33,7 @@ import {
 } from './model'
 
 const theme = ref(document.documentElement.dataset.theme === 'light' ? 'light' : 'dark')
+const themeTransitionRunning = ref(false)
 const themeAction = computed(() =>
   theme.value === 'dark' ? 'Zapnúť svetlú tému' : 'Zapnúť tmavú tému',
 )
@@ -39,17 +41,53 @@ function setTheme(value, persist = true) {
   theme.value = value === 'light' ? 'light' : 'dark'
   document.documentElement.dataset.theme = theme.value
   document.querySelector('meta[name="theme-color"]').content =
-    theme.value === 'dark' ? '#09090b' : '#f7f8f5'
-  if (persist) {
-    try {
-      localStorage.setItem('ynet-theme', theme.value)
-    } catch {
-      notify('Téma sa zmenila, ale výber sa nepodarilo uložiť do prehliadača.')
-    }
+    theme.value === 'dark' ? '#09090b' : '#f5f2ee'
+  if (persist) persistTheme(theme.value)
+}
+function persistTheme(value) {
+  try {
+    localStorage.setItem('ynet-theme', value)
+  } catch {
+    notify('Téma sa zmenila, ale výber sa nepodarilo uložiť do prehliadača.')
   }
 }
-function toggleTheme() {
-  setTheme(theme.value === 'dark' ? 'light' : 'dark')
+async function toggleTheme(event) {
+  if (themeTransitionRunning.value) return
+  const nextTheme = theme.value === 'dark' ? 'light' : 'dark'
+  if (!document.startViewTransition || matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    setTheme(nextTheme)
+    return
+  }
+  const bounds = event.currentTarget.getBoundingClientRect()
+  const x = event.detail > 0 ? event.clientX : bounds.left + bounds.width / 2
+  const y = event.detail > 0 ? event.clientY : bounds.top + bounds.height / 2
+  const radius = Math.ceil(Math.hypot(Math.max(x, innerWidth - x), Math.max(y, innerHeight - y)))
+  themeTransitionRunning.value = true
+  // Voľbu uložíme hneď, aj keby používateľ počas animácie obnovil stránku.
+  persistTheme(nextTheme)
+  try {
+    const transition = document.startViewTransition(async () => {
+      setTheme(nextTheme, false)
+      await nextTick()
+    })
+    // Aj pri preskočenom prechode spracujeme obe promise bez nechceného odmietnutia.
+    const finished = transition.finished.catch(() => {})
+    await transition.ready
+    await document.documentElement.animate(
+      { clipPath: [`circle(0px at ${x}px ${y}px)`, `circle(${radius}px at ${x}px ${y}px)`] },
+      {
+        duration: 560,
+        easing: 'cubic-bezier(.2,.7,.2,1)',
+        pseudoElement: '::view-transition-new(root)',
+        fill: 'both',
+      },
+    ).finished
+    await finished
+  } catch {
+    if (theme.value !== nextTheme) setTheme(nextTheme, false)
+  } finally {
+    themeTransitionRunning.value = false
+  }
 }
 
 const data = ref({ version: 1, events: [] })
@@ -412,18 +450,7 @@ onUnmounted(() => {
   <div class="app-shell" :inert="hasModal || undefined">
     <div v-if="mobileNav" class="nav-scrim" @click="mobileNav = false"></div>
     <aside class="sidebar" :class="{ open: mobileNav }">
-      <a href="#/" class="brand" aria-label="Ynet Aktivity — domov"
-        ><span class="brand-mark"
-          ><svg viewBox="0 0 32 32" fill="none">
-            <path
-              d="m6 6 10 14L26 6M16 20v9"
-              stroke="currentColor"
-              stroke-width="5"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            /></svg></span
-        ><span>Ynet<span class="brand-dot">.</span><small>AKTIVITY</small></span></a
-      >
+      <a href="#/" class="brand" aria-label="Ynet Aktivity — domov"><BrandLogo /></a>
       <button class="mobile-close icon-button" aria-label="Zavrieť menu" @click="mobileNav = false">
         <Icon name="close" />
       </button>
@@ -445,7 +472,12 @@ onUnmounted(() => {
           <p>Od prvej izby po posledný kábel. Majte svoju prácu pod kontrolou.</p>
           <span>Ynet · Študentská sieť <Icon name="arrowUp" :size="15" /></span>
         </div>
-        <button class="sidebar-theme-toggle" :aria-label="themeAction" @click="toggleTheme">
+        <button
+          class="sidebar-theme-toggle"
+          :disabled="themeTransitionRunning"
+          :aria-label="themeAction"
+          @click="toggleTheme"
+        >
           <Icon :name="theme === 'dark' ? 'sun' : 'moon'" :size="18" />
           <span>Zmeniť tému</span>
           <small>{{ theme === 'dark' ? 'Tmavá' : 'Svetlá' }}</small>
@@ -478,6 +510,7 @@ onUnmounted(() => {
           >
           <button
             class="icon-button theme-toggle"
+            :disabled="themeTransitionRunning"
             :aria-label="themeAction"
             :title="themeAction"
             @click="toggleTheme"
@@ -974,7 +1007,7 @@ onUnmounted(() => {
                       class="toggle" /></label
                   ><label class="flag-row"
                     ><span class="flag-label"
-                      ><Icon name="move" :size="19" /><span>Presúvalo sa vybavenie</span></span
+                      ><Icon name="move" :size="19" /><span>Presúvanie nábytku</span></span
                     ><input v-model="currentProgress.flags.moved" type="checkbox" class="toggle"
                   /></label>
                 </section>

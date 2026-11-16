@@ -15,7 +15,7 @@ Responzívna webová aplikácia na plánovanie a evidenciu práce na internátoc
 - Na ostatných internátoch začať s pracovným blokom **Hlavná budova** a pridať vlastné pomenované bloky. Ich skutočné členenie nie je prednastavené; poschodia a číslovanie používajú rovnaký model ako Mladosť.
 - Nastaviť samostatné šablóny úloh pre izby a pre serverovne a vlastný zoznam úloh pre konkrétnu izbu alebo serverovňu.
 - Otvoriť rýchly výber **internát → blok → poschodie/serverovňa → izba**. Kroky s jedinou možnosťou sa preskakujú.
-- V každej miestnosti samostatne odškrtávať úlohy, zapísať poznámku a nastaviť príznaky **Otvorené generálnym kľúčom** a **Presúvalo sa vybavenie**.
+- V každej miestnosti samostatne odškrtávať úlohy, zapísať poznámku a nastaviť príznaky **Otvorené generálnym kľúčom** a **Presúvanie nábytku**.
 - Jedným tlačidlom sa vrátiť na výber ďalšej izby.
 - Použiť vzory výberu pre dvojlôžkové a trojlôžkové izby, párne/nepárne poschodia alebo serverovne.
 - Zobraziť postup aktivity, vyhľadávať a kombinovať filtre podľa vzoru miest a stavu vrátane rozpracovaných miest.
@@ -24,18 +24,18 @@ Responzívna webová aplikácia na plánovanie a evidenciu práce na internátoc
 
 ## Tmavá a svetlá téma
 
-Predvolená tmavá téma vychádza z referenčného vzhľadu Ynet portálu: takmer čierne pozadie, grafitové karty, jemné okraje, oranžový akcent a zelené stavové indikátory. Téma sa vzťahuje aj na výber miest, formuláre, poznámky a dialógy.
+Predvolená tmavá téma vychádza z tmavej referencie Ynet portálu: takmer čierne pozadie, grafitové karty, jemné okraje, oranžový akcent a zelené stavové indikátory. Svetlá téma podľa dodanej svetlej snímky používa teplé neutrálne pozadie, biele karty, svetlú bočnú navigáciu, oranžové akcenty a modrosivé pomocné texty. Obe témy zahŕňajú výber miest, formuláre, poznámky aj dialógy.
 
-Tlačidlom so slnkom/mesiacom v hornej lište alebo **Zmeniť tému** v bočnom menu prepnete medzi tmavou a svetlou témou. Voľba sa ukladá osobitne pod kľúčom `ynet-theme` a načíta sa ešte pred vykreslením aplikácie. Prepnutie témy nemení aktivity ani postup práce.
+Tlačidlom so slnkom/mesiacom v hornej lište alebo **Zmeniť tému** v bočnom menu prepnete medzi tmavou a svetlou témou. Voľba sa ukladá osobitne pod kľúčom `ynet-theme` a načíta sa ešte pred vykreslením aplikácie. Prepnutie témy nemení aktivity ani postup práce. Nová téma sa odhalí kruhom, ktorý sa rozšíri od miesta kliknutia až po najvzdialenejší okraj obrazovky. V prehliadačoch bez View Transitions API alebo so zapnutým obmedzením pohybu sa téma prepne okamžite.
 
 ## Ako začať
 
 1. Kliknite na **Nová aktivita** a vyplňte názov. Dátum a popis sú nepovinné.
 2. Vyberte internáty. Zaškrtnutie pri bloku vyberie všetkých 65 miest: 64 izieb a serverovňu. Kliknutím na názov bloku otvoríte podrobný výber.
 3. Upravte spoločné úlohy pre izby a serverovne. Prázdne riadky sa neuložia. Šablóna môže byť aj bez úloh.
-4. Vytvorte aktivitu a kliknite na **Vybrať izbu**. Rovnaký výber zahŕňa aj serverovne.
+4. Vytvorte aktivitu a kliknite na **Vybrať izbu**. Rovnaký výber zahŕňa aj serverovne. Všetkých osem poschodí a serverovňa sa zobrazujú v kompaktnej mriežke bez posúvania; zbytočné vyhľadávanie pri deviatich možnostiach neotvára klávesnicu.
 5. Splňte úlohy, prípadne pridajte príznaky a poznámku, a kliknite na **Označiť miesto ako hotové**. Bez splnenia všetkých úloh miesto nemožno dokončiť.
-6. Tlačidlom **Späť na výber izby** pokračujte na ďalšie miesto. Ukladanie prebieha automaticky.
+6. Tlačidlom **Späť na výber izby** pokračujte na ďalšie miesto. V mobile je dostupné pri spodnom okraji obrazovky aj počas práce s poznámkami. Ukladanie prebieha automaticky.
 
 Šablóny možno upraviť aj neskôr v prehľade aktivity. Zmeny sa použijú na miesta so spoločným zoznamom. Ak majú miesta daného typu vlastný plán, pred uložením sa zobrazí otázka **Aktualizovať aj vlastné zoznamy?** Existujúce úlohy si zachovajú svoje zaškrtnutia. Nová nesplnená úloha znovu otvorí predtým hotové miesto. Odstránenie úlohy zo šablóny ju odstráni z miest používajúcich spoločnú šablónu; do vlastných plánov sa toto aktuálne odstránenie prenesie iba po vašom súhlase.
 
@@ -61,7 +61,9 @@ Príklad: spoločná šablóna obsahuje `A, B, C`, vlastný plán `B, D` (úlohy
 
 ## Vzory výberu a filtre
 
-Pri vytváraní aktivity nájdete pod blokmi sekciu **Rýchly výber podľa vzoru**:
+Pri vytváraní aktivity sa medzi poschodiami prepínate tlačidlami 1–8. Každé ukazuje počet vybraných izieb; zobrazuje sa iba práve upravované poschodie, pričom výber ostatných poschodí zostáva zachovaný. Serverovňa má samostatné zaškrtnutie.
+
+Pod blokmi je aj sekcia **Rýchly výber podľa vzoru**:
 
 - **Dvojlôžkové (/1)** vyberie izby končiace `/1`.
 - **Trojlôžkové (/2)** vyberie izby končiace `/2`.
@@ -98,7 +100,7 @@ npm run preview   # Lokálna kontrola produkčnej zostavy
 npm test          # Jednotkové testy modelu a záloh
 ```
 
-Fonty aj ikony sú súčasťou zostavy. Aplikácia pri používaní nenačítava externé fonty, analytiku ani API. Ilustrácia je vlastné SVG. Tmavá téma je vizuálne inšpirovaná dodanou snímkou Ynet portálu; nejde o prevzatý zdrojový kód portal.ynet.sk.
+Fonty aj ikony sú súčasťou zostavy. Aplikácia pri používaní nenačítava externé fonty, analytiku ani API. Ilustrácia je vlastné SVG. Logo je presný lokálny súbor `src/assets/ynet_portal_logo_black.svg` dodaný používateľom, vložený bez prekreslenia; v tmavej téme CSS mení iba farbu čierneho nápisu na svetlú. Pri používaní sa logo nenačítava z externého servera. Témy sú vizuálne inšpirované dodanými snímkami Ynet portálu; nejde o prevzatý zdrojový kód portálu.
 
 ## Zverejnenie cez GitHub Pages
 
@@ -176,6 +178,8 @@ src/
   model.js                    Model miest, výpočty postupu a validácia záloh
   style.css                   Responzívne rozhranie
   dark-theme.css              Tmavá téma podľa referencie Ynet portálu
+  light-theme.css             Svetlá téma podľa dodanej snímky
+  assets/ynet_portal_logo_black.svg  Originálna SVG príloha používateľa
   components/
     CreateActivity.vue        Trojkrokové vytvorenie aktivity a výber miest
     RoomPicker.vue            Hierarchický výber s preskakovaním krokov
@@ -184,6 +188,7 @@ src/
     Modal.vue                 Dialóg s ovládaním klávesnicou a zameraním
     Icon.vue                  Ikony Lucide
     BuildingArt.vue           Ilustrácia internátu
+    BrandLogo.vue             Vloženie originálneho lokálneho loga
 public/favicon.svg
 tests/model.test.js           Testy dátového modelu
 tests/e2e/activity.spec.js     Testy v prehliadači

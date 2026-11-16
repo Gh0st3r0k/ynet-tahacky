@@ -16,7 +16,11 @@ const candidates = computed(() =>
     stages.slice(0, stage.value).every((key) => p[key] === selected.value[key]),
   ),
 )
-const options = computed(() => [...new Set(candidates.value.map((p) => p[stages[stage.value]]))])
+const options = computed(() => {
+  const values = [...new Set(candidates.value.map((p) => p[stages[stage.value]]))]
+  if (stage.value === 2) values.sort((a, b) => (a === 'server' ? 1 : b === 'server' ? -1 : a - b))
+  return values
+})
 const optionLabel = (value) =>
   stage.value === 0
     ? dormName(value)
@@ -77,17 +81,26 @@ onMounted(() => advance(0))
         ><span v-if="!selected.dorm">{{ event.name }}</span>
       </div>
       <p class="muted small">Kroky s jedinou možnosťou preskočíme automaticky.</p>
-      <label v-if="options.length > 6" class="search-input picker-search"
+      <label v-if="options.length > 8 && stage !== 2" class="search-input picker-search"
         ><Icon name="search" :size="18" /><input
           v-model="search"
           :placeholder="stage === 3 ? 'Hľadať číslo izby…' : 'Hľadať…'"
           aria-label="Hľadať vo výbere"
       /></label>
-      <div class="picker-options" :class="{ compact: stage === 3 }">
+      <div
+        class="picker-options"
+        :class="{
+          compact: stage === 3,
+          'floor-grid': stage === 2,
+          'block-picker-grid': stage === 1,
+          'dorm-picker-grid': stage === 0,
+        }"
+      >
         <button
           v-for="value in visibleOptions"
           :key="value"
           class="picker-option"
+          :class="{ completed: optionPlaces(value).every((p) => isDone(event, p)) }"
           @click="choose(value)"
         >
           <span

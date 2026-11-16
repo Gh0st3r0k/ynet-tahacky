@@ -30,7 +30,7 @@ test('celý postup: výber, úlohy, príznaky, poznámka a uloženie', async ({ 
   await page.screenshot({ path: `/tmp/ynet-room-${page.viewportSize().width}.png`, fullPage: true })
   await page.getByRole('button', { name: 'Označiť všetky', exact: true }).click()
   await page.getByLabel('Otvorené generálnym kľúčom').check()
-  await page.getByLabel('Presúvalo sa vybavenie').check()
+  await page.getByLabel('Presúvanie nábytku').check()
   await page.getByLabel('Poznámka').fill('Kábel vymenený, pripojenie funguje.')
   await page.getByRole('button', { name: 'Označiť miesto ako hotové' }).click()
   await page.reload()

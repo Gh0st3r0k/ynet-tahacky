@@ -53,5 +53,5 @@ test('uložená svetlá téma sa načíta aj pred spustením Vue', async ({ page
   await page.route('**/src/main.js', (route) => route.abort())
   await page.reload()
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'light')
-  await expect(page.locator('html')).toHaveCSS('background-color', 'rgb(247, 248, 245)')
+  await expect(page.locator('html')).toHaveCSS('background-color', 'rgb(245, 242, 238)')
 })
