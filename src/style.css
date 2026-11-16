@@ -3850,36 +3850,6 @@ main {
 ::view-transition-image-pair(root) {
   isolation: isolate;
 }
-
-.floor-tabs {
-  display: grid;
-  grid-template-columns: repeat(8, minmax(0, 1fr));
-  gap: 7px;
-  margin: 0 0 16px;
-}
-.floor-tabs button {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  min-height: 44px;
-  border: 1px solid var(--border-strong, #d5dbcc);
-  border-radius: 7px;
-  background: var(--surface, #fff);
-}
-.floor-tabs strong {
-  font-size: 13px;
-}
-.floor-tabs small {
-  font-size: 9px;
-  color: var(--muted);
-}
-.floor-tabs button.active {
-  border-color: var(--yellow);
-  background: var(--accent-soft, #fff7df);
-  color: var(--accent-text, #967425);
-  box-shadow: inset 0 0 0 1px var(--yellow);
-}
 .picker-options.floor-grid {
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
@@ -3927,9 +3897,6 @@ main {
   display: none;
 }
 @media (max-width: 600px) {
-  .floor-tabs {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-  }
   .floor-editor .room-chips {
     margin-bottom: 2px;
   }

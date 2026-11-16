@@ -24,7 +24,6 @@ const dorms = reactive(DORMS.map((d) => ({ ...d, blocks: [...d.blocks] })))
 const selectedDorms = ref(['mladost'])
 const activeDorm = ref('mladost'),
   activeBlock = ref('A1'),
-  activeFloor = ref(1),
   newBlock = ref('')
 const selection = reactive(new Map())
 const pattern = ref('double'),
@@ -398,31 +397,8 @@ function submit() {
                 }}
               </button>
             </div>
-            <div class="floor-tabs" role="group" aria-label="Poschodie na úpravu">
-              <button
-                v-for="floor in FLOORS"
-                :key="floor"
-                type="button"
-                :class="{ active: activeFloor === floor }"
-                :aria-pressed="activeFloor === floor"
-                :aria-label="`Zobraziť ${floor}. poschodie`"
-                @click="activeFloor = floor"
-              >
-                <strong>{{ floor }}.</strong
-                ><small
-                  >{{
-                    currentPlaces.filter((p) => p.floor === floor && selection.has(p.id)).length
-                  }}/8</small
-                >
-              </button>
-            </div>
             <div class="floor-table">
-              <div
-                v-for="floor in FLOORS"
-                v-show="activeFloor === floor"
-                :key="floor"
-                class="floor-row"
-              >
+              <div v-for="floor in FLOORS" :key="floor" class="floor-row">
                 <button
                   type="button"
                   class="floor-toggle"

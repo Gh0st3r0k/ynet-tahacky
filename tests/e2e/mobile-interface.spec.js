@@ -44,17 +44,15 @@ test('všetkých osem poschodí a serverovňa sú dostupné bez posúvania dial�
   await expect(page.getByRole('heading', { name: 'Serverovňa', exact: true })).toBeVisible()
 })
 
-test('pri vytváraní aktivity sa poschodia prepínajú bez dlhého zoznamu izieb', async ({ page }) => {
+test('pri vytváraní aktivity sú naraz zobrazené všetky izby celého bloku', async ({ page }) => {
   await page.goto('/#/new')
   await page.getByLabel(/Názov aktivity/).fill('Mobilný výber')
   await page.getByRole('button', { name: 'Pokračovať', exact: true }).click()
-  await expect(page.locator('.floor-tabs button')).toHaveCount(8)
-  await expect(page.locator('.floor-row:visible')).toHaveCount(1)
-  await page.getByRole('button', { name: 'Zobraziť 8. poschodie', exact: true }).click()
+  await expect(page.locator('.floor-row:visible')).toHaveCount(8)
+  await expect(page.locator('.room-chip:visible')).toHaveCount(64)
+  await expect(page.locator('.server-select')).toBeVisible()
   await page.getByRole('button', { name: '85/2', exact: true }).click()
-  await page.getByRole('button', { name: 'Zobraziť 1. poschodie', exact: true }).click()
   await page.getByRole('button', { name: '11/1', exact: true }).click()
-  await page.getByRole('button', { name: 'Zobraziť 8. poschodie', exact: true }).click()
   await expect(page.getByRole('button', { name: '85/2', exact: true })).toHaveAttribute(
     'aria-pressed',
     'true',

@@ -61,7 +61,7 @@ Príklad: spoločná šablóna obsahuje `A, B, C`, vlastný plán `B, D` (úlohy
 
 ## Vzory výberu a filtre
 
-Pri vytváraní aktivity sa medzi poschodiami prepínate tlačidlami 1–8. Každé ukazuje počet vybraných izieb; zobrazuje sa iba práve upravované poschodie, pričom výber ostatných poschodí zostáva zachovaný. Serverovňa má samostatné zaškrtnutie.
+Pri vytváraní aktivity vidíte celý zvolený blok: všetkých 8 poschodí so 64 izbami a samostatnú serverovňu. Každé poschodie má zaškrtnutie na výber všetkých ôsmich izieb. Konkrétne izby môžete vyberať naprieč poschodiami bez prepínania pohľadu. Kompaktná mriežka poschodí v už vytvorenej aktivite zostáva zachovaná.
 
 Pod blokmi je aj sekcia **Rýchly výber podľa vzoru**:
 
