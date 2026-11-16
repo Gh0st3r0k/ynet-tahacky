@@ -37,6 +37,12 @@ test('vlastný zoznam izby zostane oddelený od šablóny a dá sa obnoviť', as
   await page.getByRole('button', { name: 'Upraviť šablóny úloh' }).click()
   dialog = page.getByRole('dialog')
   await dialog.getByLabel('Izba: úloha 1').fill('Nová spoločná kontrola')
+  await dialog
+    .locator('.template-panel')
+    .first()
+    .getByRole('button', { name: 'Pridať úlohu', exact: true })
+    .click()
+  await dialog.getByLabel('Izba: úloha 4').fill('Ďalšia spoločná úloha')
   await dialog.getByRole('button', { name: 'Uložiť šablóny' }).click()
   await page.getByRole('dialog').getByRole('button', { name: 'Nie, iba spoločnú šablónu' }).click()
   await page.locator('.place-row').first().click()

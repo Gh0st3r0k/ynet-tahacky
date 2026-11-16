@@ -37,11 +37,11 @@ Tlačidlom so slnkom/mesiacom v hornej lište alebo **Zmeniť tému** v bočnom 
 5. Splňte úlohy, prípadne pridajte príznaky a poznámku, a kliknite na **Označiť miesto ako hotové**. Bez splnenia všetkých úloh miesto nemožno dokončiť.
 6. Tlačidlom **Späť na výber izby** pokračujte na ďalšie miesto. Ukladanie prebieha automaticky.
 
-Šablóny možno upraviť aj neskôr v prehľade aktivity. Zmeny sa použijú na miesta so spoločným zoznamom. Ak majú miesta daného typu vlastný plán, pred uložením sa zobrazí otázka **Aktualizovať aj vlastné zoznamy?** Existujúce úlohy si zachovajú svoje zaškrtnutia. Nová nesplnená úloha znovu otvorí predtým hotové miesto. Odstránenie úlohy zo šablóny ju odstráni z miest používajúcich spoločnú šablónu, nie z vlastných zoznamov.
+Šablóny možno upraviť aj neskôr v prehľade aktivity. Zmeny sa použijú na miesta so spoločným zoznamom. Ak majú miesta daného typu vlastný plán, pred uložením sa zobrazí otázka **Aktualizovať aj vlastné zoznamy?** Existujúce úlohy si zachovajú svoje zaškrtnutia. Nová nesplnená úloha znovu otvorí predtým hotové miesto. Odstránenie úlohy zo šablóny ju odstráni z miest používajúcich spoločnú šablónu; do vlastných plánov sa toto aktuálne odstránenie prenesie iba po vašom súhlase.
 
 ## Vlastné úlohy konkrétneho miesta
 
-V izbe alebo serverovni kliknite na **Upraviť úlohy miesta**. Editor začne aktuálnym zoznamom; úlohy môžete doplniť, premenovať alebo odstrániť. Po uložení ide o **Vlastný zoznam**, ktorý platí iba pre dané miesto. Spoločné šablóny ani ostatné miestnosti sa nemenia. Pri neskoršej zmene spoločnej šablóny si vyberiete, či úlohy doplniť aj do vlastných zoznamov dotknutého typu.
+V izbe alebo serverovni kliknite na **Upraviť úlohy miesta**. Editor začne aktuálnym zoznamom; úlohy môžete doplniť, premenovať alebo odstrániť. Po uložení ide o **Vlastný zoznam**, ktorý platí iba pre dané miesto. Spoločné šablóny ani ostatné miestnosti sa nemenia. Pri neskoršej zmene spoločnej šablóny si vyberiete, či aktuálne pridania a odstránenia preniesť aj do vlastných zoznamov dotknutého typu.
 
 Zaškrtnutia úloh, ktoré zostali v zozname, sa zachovajú. Pridaná nesplnená úloha znovu otvorí hotové miesto. Vlastný zoznam môže byť aj prázdny; miesto potom môžete dokončiť bez úloh. Tlačidlo **Obnoviť spoločnú šablónu** v editore odstráni vlastný zoznam a vráti miesto k aktuálnym spoločným úlohám.
 
@@ -49,13 +49,15 @@ Vlastné úlohy aj ich postup sa ukladajú do localStorage a JSON záloh. Starš
 
 ### Zmena spoločnej šablóny pri vlastných plánoch
 
-Po kliknutí na **Uložiť šablóny** sa pri zmenenej šablóne s dotknutými vlastnými plánmi zobrazí otázka s počtom miest a nových/upravených úloh:
+Po kliknutí na **Uložiť šablóny** sa pri zmenenej šablóne s dotknutými vlastnými plánmi zobrazí otázka s počtom dotknutých miest a práve pridaných/odstránených úloh:
 
-- **Áno, doplniť aj vlastné zoznamy** doplní úlohy zo zmenenej spoločnej šablóny do všetkých vlastných plánov daného typu. Už prítomné spoločné úlohy sa neduplikujú; ich názvy sa aktualizujú. Samostatné vlastné úlohy, zaškrtnutia, poznámky a príznaky zostávajú zachované. Žiadne položky z vlastných plánov sa neodstraňujú. Aj prázdny vlastný zoznam sa doplní.
+- **Áno, preniesť tieto zmeny** prenesie iba rozdiel medzi doterajšou a práve ukladanou spoločnou šablónou: doplní práve pridané úlohy a odstráni práve odstránené spoločné úlohy, ak ich vlastný plán obsahuje. Pridanie aj odstránenie môže prebehnúť naraz. Staršie spoločné úlohy, ktoré ste si vo vlastnom pláne vynechali, sa nevrátia. Vlastné pridané úlohy, názvy a poradie ostatných úloh, ich zaškrtnutia, poznámky a príznaky zostanú zachované. Prázdny vlastný zoznam dostane iba práve pridané úlohy.
 - **Nie, iba spoločnú šablónu** uloží spoločné úlohy a ponechá vlastné plány bez zmeny.
 - **Späť k úpravám** vráti editor s rozpracovanými zmenami. Zatvorenie dialógu alebo Escape nič neuloží.
 
-Otázka sa týka iba upraveného typu: zmena úloh pre izby nemení vlastné plány serverovní. Pri nezmenenej šablóne alebo bez dotknutých vlastných zoznamov sa otázka nezobrazuje. Ak by doplnenie prekročilo limit 50 úloh v niektorom pláne, súhlas nie je dostupný; môžete zoznam skrátiť alebo uložiť iba spoločnú šablónu. Pred odpoveďou sa do aktivity nič nezapisuje.
+Otázka sa týka iba aktuálnych pridaní a odstránení daného typu: zmena úloh pre izby nemení vlastné plány serverovní. Samotné premenovanie alebo zmena poradia spoločných úloh vlastné plány neprepisuje. Ak aktuálna úprava nemení žiadny vlastný plán, otázka sa nezobrazuje. Ak by doplnenie prekročilo limit 50 úloh v niektorom pláne, súhlas nie je dostupný; môžete zoznam skrátiť alebo uložiť iba spoločnú šablónu. Pred odpoveďou sa do aktivity nič nezapisuje.
+
+Príklad: spoločná šablóna obsahuje `A, B, C`, vlastný plán `B, D` (úlohy `A` a `C` ste si predtým odstránili, `D` je vlastná úloha). Ak zo spoločnej šablóny práve odstránite `B` a pridáte `E`, po súhlase bude vlastný plán obsahovať iba `D, E`. Úlohy `A` a `C` sa neobnovia. Ani staršie zmeny, ktorých prenos ste odmietli, sa pri ďalšom súhlase spätne neprenesú.
 
 ## Vzory výberu a filtre
 

@@ -103,27 +103,42 @@ export function setPlaceTasks(event, place, tasks) {
       .map((t) => ({ id: t.id, text: t.text.trim() }))
   if (event.progress[place.id]?.done && !isDone(event, place)) event.progress[place.id].done = false
 }
-// Vlastné úlohy zachováme; spoločné aktualizujeme podľa stabilného identifikátora.
+// Prenášame iba pridania a odstránenia z aktuálnej úpravy spoločnej šablóny.
+// Staršie lokálne rozdiely, názvy a poradie zostávajúcich úloh ostanú zachované.
 export function previewTemplateUpdate(event, templates) {
+  const changes = Object.fromEntries(
+    ['room', 'server'].map((kind) => {
+      const previousIds = new Set(event.templates[kind].map((task) => task.id))
+      const nextIds = new Set(templates[kind].map((task) => task.id))
+      return [
+        kind,
+        {
+          added: templates[kind].filter((task) => !previousIds.has(task.id)),
+          removedIds: new Set(
+            event.templates[kind].filter((task) => !nextIds.has(task.id)).map((task) => task.id),
+          ),
+        },
+      ]
+    }),
+  )
   const changedKinds = ['room', 'server'].filter(
-    (kind) => JSON.stringify(event.templates[kind]) !== JSON.stringify(templates[kind]),
+    (kind) => changes[kind].added.length || changes[kind].removedIds.size,
   )
   const updates = event.places
     .filter((place) => changedKinds.includes(place.kind) && hasTaskOverride(event, place))
     .map((place) => {
       const current = tasksFor(event, place)
-      const incoming = new Map(templates[place.kind].map((task) => [task.id, task]))
+      const change = changes[place.kind]
       const existingIds = new Set(current.map((task) => task.id))
-      const added = templates[place.kind].filter((task) => !existingIds.has(task.id))
-      const updated = current.filter(
-        (task) => incoming.has(task.id) && incoming.get(task.id).text !== task.text,
-      ).length
+      const added = change.added.filter((task) => !existingIds.has(task.id))
+      const removed = current.filter((task) => change.removedIds.has(task.id)).length
       const tasks = [
-        ...current.map((task) => ({ ...(incoming.get(task.id) || task) })),
+        ...current.filter((task) => !change.removedIds.has(task.id)).map((task) => ({ ...task })),
         ...added.map((task) => ({ ...task })),
       ]
-      return { place, tasks, added: added.length, updated }
+      return { place, tasks, added: added.length, removed }
     })
+    .filter((update) => update.added || update.removed)
   return { changedKinds, updates, overflow: updates.filter((update) => update.tasks.length > 50) }
 }
 export function applyTemplateUpdate(event, templates, includeCustom = false) {

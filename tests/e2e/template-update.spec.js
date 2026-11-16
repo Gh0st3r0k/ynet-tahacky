@@ -69,17 +69,16 @@ test('pred uložením sa opýta a súhlas doplní všetky vlastné plány so zac
   await decision.getByRole('button', { name: 'Späť k úpravám' }).click()
   await expect(page.getByLabel('Izba: úloha 4')).toHaveValue('Nová spoločná úloha pre izby')
   await page.getByRole('button', { name: 'Uložiť šablóny', exact: true }).click()
-  await decision.getByRole('button', { name: 'Áno, doplniť aj vlastné zoznamy' }).click()
+  await decision.getByRole('button', { name: 'Áno, preniesť tieto zmeny' }).click()
   await expect(page.getByRole('dialog')).toHaveCount(0)
   await page.reload()
   await page.locator('.place-row').first().click()
   await expect(
     page.getByRole('checkbox', { name: 'Vlastná kontrola iba pre izbu' }),
   ).toHaveAttribute('aria-checked', 'true')
-  await expect(page.getByRole('checkbox', { name: 'Upravená spoločná kontrola' })).toHaveAttribute(
-    'aria-checked',
-    'true',
-  )
+  await expect(
+    page.getByRole('checkbox', { name: 'Skontrolovať sieťovú zásuvku' }),
+  ).toHaveAttribute('aria-checked', 'true')
   await expect(
     page.getByRole('checkbox', { name: 'Nová spoločná úloha pre izby' }),
   ).toHaveAttribute('aria-checked', 'false')
@@ -89,7 +88,7 @@ test('pred uložením sa opýta a súhlas doplní všetky vlastné plány so zac
   await expect(page.locator('.page-heading > .tag')).toHaveText('Rozpracované')
   await page.getByRole('link', { name: 'Prehľad aktivity' }).click()
   await page.locator('.place-row').nth(1).click()
-  await expect(page.locator('.task-item')).toHaveCount(4)
+  await expect(page.locator('.task-item')).toHaveCount(1)
   await expect(page.getByRole('checkbox', { name: 'Nová spoločná úloha pre izby' })).toBeVisible()
   await page.getByRole('link', { name: 'Prehľad aktivity' }).click()
   await page.locator('.place-row').last().click()
@@ -131,9 +130,7 @@ test('prekročenie limitu nesmie poškodiť vlastné zoznamy a možno uložiť i
   await addSharedRules(page)
   const decision = page.getByRole('dialog')
   await expect(decision.getByRole('alert')).toContainText('limit 50 úloh')
-  await expect(
-    decision.getByRole('button', { name: 'Áno, doplniť aj vlastné zoznamy' }),
-  ).toBeDisabled()
+  await expect(decision.getByRole('button', { name: 'Áno, preniesť tieto zmeny' })).toBeDisabled()
   await decision.getByRole('button', { name: 'Nie, iba spoločnú šablónu' }).click()
   await page.reload()
   await page.locator('.place-row').first().click()
@@ -142,4 +139,89 @@ test('prekročenie limitu nesmie poškodiť vlastné zoznamy a možno uložiť i
   await page.getByRole('link', { name: 'Prehľad aktivity' }).click()
   await page.locator('.place-row').nth(2).click()
   await expect(page.getByRole('checkbox', { name: 'Nová spoločná úloha pre izby' })).toBeVisible()
+})
+
+test('súčasné pridanie a odstránenie rešpektuje staršie vlastné vynechania aj názvy', async ({
+  page,
+}) => {
+  const event = fixture(),
+    room = event.places[0],
+    [a, b, c] = event.templates.room
+  setPlaceTasks(event, room, [
+    { ...b, text: 'Lokálne upravený názov' },
+    c,
+    { id: 'personal-room', text: 'Vlastná kontrola iba pre izbu' },
+  ])
+  event.progress[room.id].done = true
+  await load(page, event)
+  await page.getByRole('button', { name: 'Upraviť šablóny úloh' }).click()
+  const editor = page.getByRole('dialog'),
+    rooms = editor.locator('.template-panel').first()
+  await editor.getByLabel('Izba: úloha 2').fill('Nový spoločný názov')
+  await rooms.getByRole('button', { name: 'Odstrániť úlohu 3', exact: true }).click()
+  await rooms.getByRole('button', { name: 'Pridať úlohu', exact: true }).click()
+  await editor.getByLabel('Izba: úloha 3').fill('Iba práve pridaná spoločná úloha')
+  await editor.getByRole('button', { name: 'Uložiť šablóny', exact: true }).click()
+  const decision = page.getByRole('dialog')
+  await expect(decision).toContainText('Nové úlohy: 2')
+  await expect(decision).toContainText('Odstránené úlohy: 1')
+  await decision.getByRole('button', { name: 'Áno, preniesť tieto zmeny' }).click()
+  await page.reload()
+  await page.locator('.place-row').first().click()
+  await expect(page.locator('.task-item')).toHaveCount(3)
+  await expect(page.getByRole('checkbox', { name: a.text })).toHaveCount(0)
+  await expect(page.getByRole('checkbox', { name: c.text })).toHaveCount(0)
+  await expect(page.getByRole('checkbox', { name: 'Lokálne upravený názov' })).toHaveAttribute(
+    'aria-checked',
+    'true',
+  )
+  await expect(page.getByRole('checkbox', { name: 'Nový spoločný názov' })).toHaveCount(0)
+  await expect(
+    page.getByRole('checkbox', { name: 'Vlastná kontrola iba pre izbu' }),
+  ).toHaveAttribute('aria-checked', 'true')
+  await expect(
+    page.getByRole('checkbox', { name: 'Iba práve pridaná spoločná úloha' }),
+  ).toHaveAttribute('aria-checked', 'false')
+  await expect(page.getByLabel('Poznámka')).toHaveValue('Poznámka iba pre izbu')
+  await expect(page.getByLabel('Otvorené generálnym kľúčom')).toBeChecked()
+  await page.getByRole('link', { name: 'Prehľad aktivity' }).click()
+  await page.locator('.place-row').nth(1).click()
+  await expect(page.locator('.task-item')).toHaveCount(1)
+  await expect(
+    page.getByRole('checkbox', { name: 'Iba práve pridaná spoločná úloha' }),
+  ).toBeVisible()
+  await page.getByRole('link', { name: 'Prehľad aktivity' }).click()
+  await page.locator('.place-row').last().click()
+  await expect(page.locator('.task-item')).toHaveCount(4)
+})
+
+test('samotné odstránenie ponúkne prenos a neodstráni osobné úlohy ani hotový stav', async ({
+  page,
+}) => {
+  const event = fixture(),
+    removed = event.templates.room[2]
+  await load(page, event)
+  await page.getByRole('button', { name: 'Upraviť šablóny úloh' }).click()
+  const editor = page.getByRole('dialog')
+  await editor
+    .locator('.template-panel')
+    .first()
+    .getByRole('button', { name: 'Odstrániť úlohu 3', exact: true })
+    .click()
+  await editor.getByRole('button', { name: 'Uložiť šablóny', exact: true }).click()
+  const decision = page.getByRole('dialog')
+  await expect(decision).toContainText('Nové úlohy: 0')
+  await expect(decision).toContainText('Odstránené úlohy: 1')
+  await decision.getByRole('button', { name: 'Áno, preniesť tieto zmeny' }).click()
+  await page.reload()
+  await page.locator('.place-row').first().click()
+  await expect(page.locator('.task-item')).toHaveCount(3)
+  await expect(page.getByRole('checkbox', { name: removed.text })).toHaveCount(0)
+  await expect(
+    page.getByRole('checkbox', { name: 'Vlastná kontrola iba pre izbu' }),
+  ).toHaveAttribute('aria-checked', 'true')
+  await expect(page.locator('.page-heading > .tag')).toHaveText('Hotové')
+  await page.getByRole('link', { name: 'Prehľad aktivity' }).click()
+  await page.locator('.place-row').nth(1).click()
+  await expect(page.locator('.task-item')).toHaveCount(0)
 })

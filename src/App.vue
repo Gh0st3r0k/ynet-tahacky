@@ -1109,7 +1109,7 @@ onUnmounted(() => {
       tabindex="-1"
     >
       <p>
-        V aktivite sú miesta s vlastným plánom. Chcete do ich zoznamov pridať aj úlohy zo zmenenej
+        Chcete do vlastných plánov preniesť iba úlohy pridané a odstránené pri tejto úprave
         spoločnej šablóny?
       </p>
       <div class="template-update-summary">
@@ -1119,14 +1119,14 @@ onUnmounted(() => {
         <p>
           Nové úlohy:
           {{ templateUpdatePreview.updates.reduce((sum, update) => sum + update.added, 0) }} ·
-          Upravené úlohy:
-          {{ templateUpdatePreview.updates.reduce((sum, update) => sum + update.updated, 0) }}
+          Odstránené úlohy:
+          {{ templateUpdatePreview.updates.reduce((sum, update) => sum + update.removed, 0) }}
         </p>
       </div>
       <p class="small muted">
-        Vlastné úlohy, zaškrtnutia, poznámky a príznaky zachováme. Spoločné úlohy doplníme bez
-        opakovania a aktualizujeme ich názvy. Žiadne úlohy z vlastných zoznamov neodstránime. Nová
-        nesplnená úloha znovu otvorí hotové miesto.
+        Pridáme iba práve pridané spoločné úlohy a odoberieme iba práve odstránené spoločné úlohy.
+        Staršie vlastné pridania a odstránenia zostanú zachované. Ostatné úlohy, ich názvy,
+        zaškrtnutia, poznámky a príznaky nemeníme. Nová nesplnená úloha znovu otvorí hotové miesto.
       </p>
       <p v-if="templateUpdatePreview.overflow.length" class="form-error" role="alert">
         Počet miest, ktoré by prekročili limit 50 úloh: {{ templateUpdatePreview.overflow.length }}.
@@ -1139,7 +1139,7 @@ onUnmounted(() => {
           :disabled="!!templateUpdatePreview.overflow.length"
           @click="commitTemplateUpdate(true)"
         >
-          <Icon name="plus" :size="17" /> Áno, doplniť aj vlastné zoznamy
+          <Icon name="plus" :size="17" /> Áno, preniesť tieto zmeny
         </button>
         <button class="button secondary" @click="commitTemplateUpdate(false)">
           Nie, iba spoločnú šablónu
@@ -1152,7 +1152,8 @@ onUnmounted(() => {
     <div v-else class="modal-body">
       <p class="muted modal-explainer">
         Úpravy platia pre spoločné šablóny. Ak majú dotknuté miesta vlastný plán, pred uložením sa
-        opýtame, či úlohy doplniť aj tam. Existujúce zaškrtnutia zostanú zachované.
+        opýtame, či preniesť aj aktuálne pridania a odstránenia. Staršie vlastné úpravy a existujúce
+        zaškrtnutia zostanú zachované.
       </p>
       <TaskEditor :model-value="draftTemplates" />
       <div class="modal-actions">
