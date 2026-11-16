@@ -1,0 +1,652 @@
+/* Jeden dizajn pre obe témy. Rozmery, typografia a stavy komponentov sú spoločné; farby dodávajú palety. */
+:root[data-theme] {
+  color: var(--ink);
+  background: var(--page-background);
+}
+
+.sidebar {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.sidebar-theme-toggle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 44px;
+  padding: 10px 8px;
+  margin-bottom: 8px;
+  border-radius: 7px;
+  color: var(--muted);
+  text-align: left;
+  font-size: 11px;
+}
+.sidebar-theme-toggle:hover {
+  background: var(--surface-raised);
+  color: var(--ink);
+}
+.sidebar-theme-toggle small {
+  margin-left: auto;
+  font-size: 9px;
+  color: var(--muted);
+}
+.theme-toggle {
+  width: 36px;
+  height: 36px;
+}
+
+:root[data-theme] ::selection {
+  background: var(--selection-background);
+  color: var(--selection-color);
+}
+:root[data-theme] :is(button, a, input, textarea, select):focus-visible {
+  outline-color: var(--is-outline-color);
+}
+:root[data-theme] input,
+:root[data-theme] textarea,
+:root[data-theme] select {
+  background: var(--input-background);
+  border-color: var(--border-strong);
+  color: var(--ink);
+}
+:root[data-theme] :is(input, textarea, select):focus {
+  border-color: var(--yellow);
+  box-shadow: 0 0 0 3px #ff850a18;
+}
+:root[data-theme] :is(input, textarea)::placeholder {
+  color: var(--is-color);
+}
+:root[data-theme] p {
+  color: var(--muted);
+}
+:root[data-theme] .sidebar {
+  background: var(--sidebar-background);
+  border-right: 1px solid var(--line);
+  color: var(--sidebar-color);
+}
+:root[data-theme] .brand {
+  margin-left: 0;
+  gap: 8px;
+}
+:root[data-theme] .workspace-label {
+  color: var(--workspace-label-color);
+  letter-spacing: 1.1px;
+}
+:root[data-theme] .sidebar nav a:hover,
+:root[data-theme] .sidebar-theme-toggle:hover {
+  background: var(--surface-raised);
+  color: var(--selection-color);
+}
+:root[data-theme] .sidebar nav a.active {
+  background: var(--sidebar-background-2);
+  color: var(--sidebar-color-2);
+}
+:root[data-theme] .sidebar nav a.active > svg {
+  color: var(--yellow);
+}
+:root[data-theme] .nav-count {
+  background: var(--nav-count-background);
+  color: var(--nav-count-color);
+}
+:root[data-theme] .sidebar-note {
+  border-color: var(--line);
+  background: var(--sidebar-note-background);
+}
+:root[data-theme] .mini-signal {
+  color: var(--accent-text);
+  border-color: var(--mini-signal-border-color);
+  background: var(--accent-soft);
+}
+:root[data-theme] .sidebar-note h3 {
+  color: var(--sidebar-note-color);
+}
+:root[data-theme] .sidebar-note p,
+:root[data-theme] .sidebar-note > span:last-child,
+:root[data-theme] .local-state,
+:root[data-theme] .local-state svg,
+:root[data-theme] .sidebar-theme-toggle small {
+  color: var(--muted);
+}
+:root[data-theme] .local-state {
+  border-color: var(--line);
+}
+:root[data-theme] .sidebar-theme-toggle {
+  color: var(--sidebar-theme-toggle-color);
+}
+:root[data-theme] .topbar {
+  background: var(--topbar-background);
+}
+:root[data-theme] .topbar-left,
+:root[data-theme] .topbar-app,
+:root[data-theme] .storage-status,
+:root[data-theme] .topbar-left > svg {
+  color: var(--muted);
+}
+:root[data-theme] .avatar {
+  background: var(--surface-raised);
+  border-color: var(--line);
+  color: var(--avatar-color);
+}
+:root[data-theme] .heading-dot,
+:root[data-theme] .eyebrow > span,
+:root[data-theme] .footer-dot {
+  color: var(--yellow);
+}
+:root[data-theme] .eyebrow {
+  color: var(--muted);
+}
+:root[data-theme] .primary {
+  background: var(--yellow);
+  color: var(--primary-color);
+  border-color: var(--yellow);
+  box-shadow: none;
+}
+:root[data-theme] .primary:hover:not(:disabled) {
+  background: var(--primary-background);
+  border-color: var(--primary-background);
+}
+:root[data-theme] .secondary,
+:root[data-theme] .dark {
+  background: var(--surface-raised);
+  border-color: var(--secondary-border-color);
+  color: var(--secondary-color);
+}
+:root[data-theme] .secondary:hover:not(:disabled),
+:root[data-theme] .dark:hover {
+  background: var(--secondary-background);
+  border-color: var(--secondary-border-color-2);
+}
+:root[data-theme] .icon-button {
+  color: var(--icon-button-color);
+}
+:root[data-theme] .icon-button:hover {
+  background: var(--surface-hover);
+  color: var(--icon-button-color-2);
+}
+:root[data-theme] .text-button,
+:root[data-theme] .demo-link,
+:root[data-theme] .activity-card footer a {
+  color: var(--accent-text);
+}
+:root[data-theme] .text-button:hover,
+:root[data-theme] .demo-link:hover,
+:root[data-theme] .activity-title:hover h2 {
+  color: var(--text-button-color);
+}
+:root[data-theme] .stat-card,
+:root[data-theme] .activity-card,
+:root[data-theme] .panel,
+:root[data-theme] .template-panel {
+  background: var(--surface);
+  border-color: var(--line);
+  box-shadow: none;
+}
+:root[data-theme] .yellow,
+:root[data-theme] .icon-box.yellow,
+:root[data-theme] .icon-box.room {
+  background: var(--accent-soft);
+  color: var(--accent-text);
+  border-color: var(--yellow-border-color);
+}
+:root[data-theme] .green,
+:root[data-theme] .icon-box.green,
+:root[data-theme] .icon-box.success,
+:root[data-theme] .icon-box.server {
+  background: var(--success-soft);
+  color: var(--success-text);
+  border-color: var(--success-border);
+}
+:root[data-theme] .lilac,
+:root[data-theme] .icon-box.lilac {
+  background: var(--lilac-background);
+  color: var(--lilac-color);
+  border-color: var(--lilac-border-color);
+}
+:root[data-theme] .stat-card > div > span,
+:root[data-theme] .stat-card strong small,
+:root[data-theme] .filter-tabs button,
+:root[data-theme] .art-caption,
+:root[data-theme] .how-heading > span,
+:root[data-theme] .how-number,
+:root[data-theme] .page-footer,
+:root[data-theme] .page-footer strong,
+:root[data-theme] .activity-meta,
+:root[data-theme] .activity-card footer,
+:root[data-theme] .progress-caption,
+:root[data-theme] .progress-caption strong > span,
+:root[data-theme] .activity-title svg {
+  color: var(--muted);
+}
+:root[data-theme] .filter-tabs button.active {
+  color: var(--filter-tabs-color);
+  border-color: var(--yellow);
+}
+:root[data-theme] .count-badge,
+:root[data-theme] .neutral {
+  background: var(--count-badge-background);
+  color: var(--count-badge-color);
+}
+:root[data-theme] .search-input {
+  background: var(--surface);
+  border-color: var(--border-strong);
+  color: var(--muted);
+}
+:root[data-theme] .search-input:focus-within {
+  outline-color: var(--yellow);
+}
+:root[data-theme] .search-input input,
+:root[data-theme] .template-input input {
+  background: transparent;
+}
+:root[data-theme] .welcome-card {
+  background: var(--surface);
+  border-color: var(--line);
+}
+:root[data-theme] .yellow-tag {
+  background: var(--yellow-tag-background);
+  color: var(--yellow-tag-color);
+}
+:root[data-theme] .yellow-tag .status-dot {
+  background: var(--yellow-tag-background-2);
+}
+:root[data-theme] .green-tag {
+  background: var(--success-soft);
+  color: var(--success-text);
+}
+:root[data-theme] .status-dot,
+:root[data-theme] .green-tag .status-dot {
+  background: var(--art-signal);
+}
+:root[data-theme] .neutral .status-dot {
+  background: var(--muted);
+}
+:root[data-theme] .status-dot.warning {
+  background: var(--status-dot-background);
+}
+:root[data-theme] .welcome-copy > .tag {
+  border-color: var(--accent-border);
+  background: var(--accent-soft);
+  color: var(--accent-text);
+}
+:root[data-theme] .welcome-copy > .tag .status-dot {
+  background: var(--yellow);
+}
+:root[data-theme] .welcome-copy p,
+:root[data-theme] .how-card p {
+  color: var(--muted);
+}
+:root[data-theme] .how-icon,
+:root[data-theme] .icon-box {
+  background: var(--surface-raised);
+  border-color: var(--line);
+  color: var(--how-icon-color);
+}
+:root[data-theme] .progress-caption strong {
+  color: var(--progress-caption-color);
+}
+:root[data-theme] .progress-track {
+  background: var(--progress-track-background);
+}
+:root[data-theme] .progress-track > div {
+  background: var(--art-signal);
+}
+:root[data-theme] .new-activity-card {
+  background: var(--input-background);
+  border-color: var(--new-activity-card-border-color);
+}
+:root[data-theme] .new-activity-card:hover {
+  background: var(--surface-raised);
+  border-color: var(--new-activity-card-border-color-2);
+}
+:root[data-theme] .new-activity-card > span {
+  border-color: var(--new-activity-card-border-color-3);
+  color: var(--yellow);
+}
+:root[data-theme] .new-activity-card strong,
+:root[data-theme] .new-activity-card p,
+:root[data-theme] .back-link {
+  color: var(--new-activity-card-color);
+}
+:root[data-theme] .back-link:hover {
+  color: var(--icon-button-color-2);
+}
+:root[data-theme] .wizard-steps button,
+:root[data-theme] .step-arrow,
+:root[data-theme] .optional,
+:root[data-theme] .muted,
+:root[data-theme] .section-title p,
+:root[data-theme] .subsection-heading p,
+:root[data-theme] .template-heading p,
+:root[data-theme] .creation-review p {
+  color: var(--muted);
+}
+:root[data-theme] .step-number {
+  background: var(--step-number-background);
+  color: var(--step-number-color);
+}
+:root[data-theme] .wizard-steps .active button {
+  color: var(--sidebar-color-2);
+}
+:root[data-theme] .wizard-steps .active .step-number {
+  background: var(--yellow);
+  color: var(--primary-color);
+}
+:root[data-theme] .wizard-steps .complete .step-number {
+  background: var(--success-soft);
+  color: var(--success-text);
+}
+:root[data-theme] .section-number {
+  background: var(--accent-soft);
+  color: var(--accent-text);
+}
+:root[data-theme] .field,
+:root[data-theme] .room-breadcrumb,
+:root[data-theme] .detail-meta {
+  color: var(--field-color);
+}
+:root[data-theme] .required {
+  color: var(--accent-text);
+}
+:root[data-theme] .info-strip {
+  background: var(--info-strip-background);
+  color: var(--info-strip-color);
+  border: 1px solid var(--info-strip-border);
+}
+:root[data-theme] .info-strip p {
+  color: var(--info-strip-color-2);
+}
+:root[data-theme] .form-error {
+  background: var(--form-error-background);
+  color: var(--form-error-color);
+}
+:root[data-theme] .dorm-option,
+:root[data-theme] .block-cell,
+:root[data-theme] .room-chip,
+:root[data-theme] .server-select {
+  background: var(--surface-raised);
+  border-color: var(--border-strong);
+  color: var(--progress-caption-color);
+}
+:root[data-theme] .dorm-option strong,
+:root[data-theme] .floor-toggle,
+:root[data-theme] .server-select strong {
+  color: var(--dorm-option-color);
+}
+:root[data-theme] .block-open small,
+:root[data-theme] .server-select > span:last-child {
+  color: var(--muted);
+}
+:root[data-theme] .dorm-option.selected,
+:root[data-theme] .block-cell.chosen,
+:root[data-theme] .room-chip.selected,
+:root[data-theme] .server-select.selected {
+  background: var(--accent-soft);
+  border-color: var(--accent-border);
+  color: var(--accent-text);
+}
+:root[data-theme] .dorm-option.selected strong {
+  color: var(--accent-text);
+}
+:root[data-theme] .block-cell.focused {
+  box-shadow: 0 0 0 2px var(--yellow);
+}
+:root[data-theme] .checkbox-visual,
+:root[data-theme] .fake-checkbox,
+:root[data-theme] .task-checkbox {
+  background: var(--surface);
+  border-color: var(--checkbox-visual-border-color);
+  color: var(--checkbox-visual-color);
+}
+:root[data-theme] .selected .checkbox-visual,
+:root[data-theme] .chosen .checkbox-visual,
+:root[data-theme] .floor-toggle[aria-pressed='true'] .checkbox-visual {
+  background: var(--yellow);
+  border-color: var(--yellow);
+  color: var(--primary-color);
+}
+:root[data-theme] .checkbox-visual.partial {
+  background: var(--checkbox-visual-background);
+  border-color: var(--checkbox-visual-border-color-2);
+  color: var(--checkbox-visual-color-2);
+}
+:root[data-theme] .dorm-tabs button {
+  color: var(--muted);
+}
+:root[data-theme] .dorm-tabs button.active {
+  color: var(--accent-text);
+  border-color: var(--yellow);
+}
+:root[data-theme] .floor-editor {
+  background: var(--input-background);
+  border-color: var(--line);
+}
+:root[data-theme] .floor-table,
+:root[data-theme] .floor-row,
+:root[data-theme] .template-input,
+:root[data-theme] .place-row,
+:root[data-theme] .task-item {
+  border-color: var(--line);
+}
+:root[data-theme] .room-chip:hover {
+  border-color: var(--accent-text);
+}
+:root[data-theme] .selection-summary {
+  background: var(--selection-summary-background);
+  border-color: var(--yellow-border-color);
+  color: var(--accent-text);
+}
+:root[data-theme] .selection-summary strong,
+:root[data-theme] .selection-summary > span,
+:root[data-theme] .creation-review > div > span {
+  color: var(--selection-summary-color);
+}
+:root[data-theme] .creation-review {
+  border-color: var(--creation-review-border-color);
+}
+:root[data-theme] .delete-event:hover,
+:root[data-theme] .danger-outline {
+  color: var(--form-error-color);
+  background: var(--delete-event-background);
+  border-color: var(--delete-event-border-color);
+}
+:root[data-theme] .event-overview {
+  background: var(--surface);
+  border-color: var(--line);
+}
+:root[data-theme] .progress-ring {
+  background: conic-gradient(var(--art-signal) var(--progress), var(--progress-track-background) 0);
+}
+:root[data-theme] .progress-ring:before {
+  background: var(--surface);
+}
+:root[data-theme] .progress-ring > span,
+:root[data-theme] .event-progress h2 {
+  color: var(--filter-tabs-color);
+}
+:root[data-theme] .event-progress .eyebrow,
+:root[data-theme] .event-progress h2 > span,
+:root[data-theme] .event-progress p,
+:root[data-theme] .place-list-head,
+:root[data-theme] .row-task-count,
+:root[data-theme] .row-flags,
+:root[data-theme] .place-identity small,
+:root[data-theme] .list-footer {
+  color: var(--muted);
+}
+:root[data-theme] .place-filters select {
+  background: var(--surface-raised);
+  color: var(--progress-caption-color);
+}
+:root[data-theme] .place-row:hover,
+:root[data-theme] .task-item:hover {
+  background: var(--place-row-background);
+}
+:root[data-theme] .place-row > svg,
+:root[data-theme] .room-breadcrumb svg,
+:root[data-theme] .flag-label svg {
+  color: var(--place-row-color);
+}
+:root[data-theme] .task-item,
+:root[data-theme] .flag-label {
+  color: var(--task-item-color);
+}
+:root[data-theme] .task-item.checked > span:last-child {
+  color: var(--muted);
+}
+:root[data-theme] .checked .task-checkbox {
+  background: var(--checked-background);
+  border-color: var(--checked-border-color);
+  color: var(--checked-color);
+}
+:root[data-theme] .complete-area p,
+:root[data-theme] .note-saved,
+:root[data-theme] .room-save-note,
+:root[data-theme] .no-tasks {
+  color: var(--muted);
+}
+:root[data-theme] .toggle {
+  background: var(--toggle-background);
+  border-color: var(--toggle-border-color);
+}
+:root[data-theme] .toggle:after {
+  background: var(--toggle-background-2);
+  box-shadow: none;
+}
+:root[data-theme] .toggle:checked {
+  background: var(--toggle-background-3);
+  border-color: var(--toggle-border-color-2);
+}
+:root[data-theme] .toggle:checked:after {
+  background: #fff;
+}
+:root[data-theme] .notes-panel > label {
+  color: var(--notes-panel-color);
+}
+:root[data-theme] .notes-panel textarea {
+  background: var(--input-background);
+  border-color: var(--border-strong);
+  color: var(--ink);
+}
+:root[data-theme] .empty-state,
+:root[data-theme] .empty-state h3 {
+  color: var(--empty-state-color);
+}
+:root[data-theme] .danger-zone {
+  background: var(--danger-zone-background);
+  border-color: var(--danger-zone-border-color);
+}
+:root[data-theme] .danger-zone h3 {
+  color: var(--danger-zone-color);
+}
+:root[data-theme] .danger-zone p {
+  color: var(--danger-zone-color-2);
+}
+:root[data-theme] .danger {
+  background: var(--danger-background);
+  border-color: var(--danger-border-color);
+  color: #fff;
+}
+:root[data-theme] .danger:hover {
+  background: var(--danger-background-2);
+}
+:root[data-theme] .modal-backdrop {
+  background: var(--modal-backdrop-background);
+}
+:root[data-theme] .modal-panel,
+:root[data-theme] .modal-header {
+  background: var(--surface);
+  border-color: var(--line);
+}
+:root[data-theme] .modal-panel {
+  box-shadow: 0 20px 90px var(--modal-panel-box-shadow);
+}
+:root[data-theme] .picker-context span {
+  color: var(--picker-context-color);
+  background: var(--picker-context-background);
+  border-color: var(--picker-context-border-color);
+}
+:root[data-theme] .picker-content > .small {
+  color: var(--muted);
+}
+:root[data-theme] .picker-option {
+  background: var(--surface-raised);
+  border-color: var(--border-strong);
+}
+:root[data-theme] .picker-option:hover {
+  background: var(--picker-option-background);
+  border-color: var(--accent-border);
+}
+:root[data-theme] .picker-option strong {
+  color: var(--picker-option-color);
+}
+:root[data-theme] .picker-option small,
+:root[data-theme] .picker-option > svg {
+  color: var(--picker-option-color-2);
+}
+:root[data-theme] .toast-message {
+  background: var(--toast-message-background);
+  border-color: var(--toast-message-border-color);
+  color: var(--toast-message-color);
+  box-shadow: 0 5px 25px var(--toast-message-box-shadow);
+}
+:root[data-theme] .toast-message > svg {
+  color: var(--success-text);
+}
+:root[data-theme] .toast-message .icon-button {
+  color: var(--toast-message-color-2);
+}
+:root[data-theme] .toast-message .icon-button:hover {
+  background: var(--toast-message-background-2);
+}
+:root[data-theme] .alert-banner {
+  border-color: var(--alert-banner-border-color);
+  background: var(--alert-banner-background);
+  color: var(--yellow-tag-color);
+}
+:root[data-theme] .alert-banner p {
+  color: var(--alert-banner-color);
+}
+:root[data-theme] .skip-link {
+  color: var(--primary-color);
+}
+:root[data-theme] .nav-scrim {
+  background: var(--modal-panel-box-shadow);
+}
+
+@media (max-width: 600px) {
+  .topbar-right {
+    gap: 8px;
+  }
+  .theme-toggle {
+    width: 44px;
+    height: 44px;
+  }
+  .storage-status {
+    font-size: 8px;
+  }
+}
+
+:root[data-theme] .pattern-panel {
+  background: var(--sidebar-note-background);
+  border-color: var(--line);
+}
+:root[data-theme] .pattern-controls label,
+:root[data-theme] .pattern-hint,
+:root[data-theme] .active-place-filters {
+  color: var(--muted);
+}
+:root[data-theme] .pattern-feedback {
+  color: var(--success-text);
+}
+
+:root[data-theme] .template-update-summary {
+  background: var(--surface-raised);
+  border-color: var(--line);
+}
+:root[data-theme] .template-update-summary strong {
+  color: var(--ink);
+}
+.brand-logo svg > g:nth-of-type(2) {
+  fill: var(--logo-ink);
+}

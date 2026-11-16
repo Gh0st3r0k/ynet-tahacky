@@ -24,7 +24,7 @@ Responzívna webová aplikácia na plánovanie a evidenciu práce na internátoc
 
 ## Tmavá a svetlá téma
 
-Predvolená tmavá téma vychádza z tmavej referencie Ynet portálu: takmer čierne pozadie, grafitové karty, jemné okraje, oranžový akcent a zelené stavové indikátory. Svetlá téma podľa dodanej svetlej snímky používa teplé neutrálne pozadie, biele karty, svetlú bočnú navigáciu, oranžové akcenty a modrosivé pomocné texty. Obe témy zahŕňajú výber miest, formuláre, poznámky aj dialógy.
+Predvolená tmavá téma vychádza z tmavej referencie Ynet portálu: takmer čierne pozadie, grafitové karty, jemné okraje, oranžový akcent a zelené stavové indikátory. Svetlá téma podľa dodanej svetlej snímky používa teplé neutrálne pozadie, biele karty, svetlú bočnú navigáciu, oranžové akcenty a modrosivé pomocné texty. Obe témy používajú rovnaké rozloženie, šírku obsahu, typografiu, rozmery, medzery, karty, tlačidlá a dialógy; mení sa iba farebná paleta. Platí to aj na mobile. Spoločný dizajn je v `style.css` a `theme.css`; súbory `dark-theme.css` a `light-theme.css` obsahujú iba farebné premenné.
 
 Tlačidlom so slnkom/mesiacom v hornej lište alebo **Zmeniť tému** v bočnom menu prepnete medzi tmavou a svetlou témou. Voľba sa ukladá osobitne pod kľúčom `ynet-theme` a načíta sa ešte pred vykreslením aplikácie. Prepnutie témy nemení aktivity ani postup práce. Nová téma sa odhalí kruhom, ktorý sa rozšíri od miesta kliknutia až po najvzdialenejší okraj obrazovky. V prehliadačoch bez View Transitions API alebo so zapnutým obmedzením pohybu sa téma prepne okamžite.
 
@@ -177,8 +177,9 @@ src/
   App.vue                     Navigácia, aktivity, práca v miestnosti a správa dát
   model.js                    Model miest, výpočty postupu a validácia záloh
   style.css                   Responzívne rozhranie
-  dark-theme.css              Tmavá téma podľa referencie Ynet portálu
-  light-theme.css             Svetlá téma podľa dodanej snímky
+  theme.css                   Spoločný dizajn komponentov pre obe témy
+  dark-theme.css              Iba tmavá farebná paleta
+  light-theme.css             Iba svetlá farebná paleta
   assets/ynet_portal_logo_black.svg  Originálna SVG príloha používateľa
   components/
     CreateActivity.vue        Trojkrokové vytvorenie aktivity a výber miest

@@ -19,5 +19,6 @@ import '@fontsource/manrope/latin-800.css'
 import './style.css'
 import './dark-theme.css'
 import './light-theme.css'
+import './theme.css'
 
 createApp(App).mount('#app')

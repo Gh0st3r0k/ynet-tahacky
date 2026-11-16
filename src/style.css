@@ -103,7 +103,7 @@ h3 {
   font-family: 'Manrope', 'DM Sans', sans-serif;
 }
 h1 {
-  font-size: 36px;
+  font-size: 32px;
   line-height: 1.25;
   font-weight: 800;
   letter-spacing: -1.4px;
@@ -309,7 +309,7 @@ strong {
   color: #6e796a;
 }
 main {
-  max-width: 1510px;
+  max-width: 1180px;
   margin: 0 auto;
   padding: 43px 45px 0;
   outline: none;
@@ -3833,9 +3833,6 @@ main {
   display: block;
   width: 100%;
   height: 100%;
-}
-:root[data-theme='dark'] .brand-logo svg > g:nth-of-type(2) {
-  fill: #f4f4f5;
 }
 
 /* Nová téma sa od miesta kliknutia odhalí cez pôvodnú snímku stránky. */
