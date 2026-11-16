@@ -21,6 +21,12 @@ Responzívna webová aplikácia na plánovanie a evidenciu práce na internátoc
 - Exportovať a obnoviť všetky dáta v JSON zálohe. Import aj mazanie vyžadujú potvrdenie.
 - Vyskúšať ukážkovú aktivitu bez ručného vypĺňania. Ukážka vznikne až po kliknutí na príslušné tlačidlo.
 
+## Tmavá a svetlá téma
+
+Predvolená tmavá téma vychádza z referenčného vzhľadu Ynet portálu: takmer čierne pozadie, grafitové karty, jemné okraje, oranžový akcent a zelené stavové indikátory. Téma sa vzťahuje aj na výber miest, formuláre, poznámky a dialógy.
+
+Tlačidlom so slnkom/mesiacom v hornej lište alebo **Zmeniť tému** v bočnom menu prepnete medzi tmavou a svetlou témou. Voľba sa ukladá osobitne pod kľúčom `ynet-theme` a načíta sa ešte pred vykreslením aplikácie. Prepnutie témy nemení aktivity ani postup práce.
+
 ## Ako začať
 
 1. Kliknite na **Nová aktivita** a vyplňte názov. Dátum a popis sú nepovinné.
@@ -51,7 +57,7 @@ npm run preview   # Lokálna kontrola produkčnej zostavy
 npm test          # Jednotkové testy modelu a záloh
 ```
 
-Fonty aj ikony sú súčasťou zostavy. Aplikácia pri používaní nenačítava externé fonty, analytiku ani API. Ilustrácia je vlastné SVG. Farby a rozhranie sú voľnou vizuálnou interpretáciou študentského portálu; nejde o prevzatý zdrojový kód ani overenú kópiu portal.ynet.sk.
+Fonty aj ikony sú súčasťou zostavy. Aplikácia pri používaní nenačítava externé fonty, analytiku ani API. Ilustrácia je vlastné SVG. Tmavá téma je vizuálne inšpirovaná dodanou snímkou Ynet portálu; nejde o prevzatý zdrojový kód portal.ynet.sk.
 
 ## Zverejnenie cez GitHub Pages
 
@@ -128,6 +134,7 @@ src/
   App.vue                     Navigácia, aktivity, práca v miestnosti a správa dát
   model.js                    Model miest, výpočty postupu a validácia záloh
   style.css                   Responzívne rozhranie
+  dark-theme.css              Tmavá téma podľa referencie Ynet portálu
   components/
     CreateActivity.vue        Trojkrokové vytvorenie aktivity a výber miest
     RoomPicker.vue            Hierarchický výber s preskakovaním krokov

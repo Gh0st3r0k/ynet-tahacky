@@ -23,6 +23,27 @@ import {
   validateBackup,
 } from './model'
 
+const theme = ref(document.documentElement.dataset.theme === 'light' ? 'light' : 'dark')
+const themeAction = computed(() =>
+  theme.value === 'dark' ? 'Zapnúť svetlú tému' : 'Zapnúť tmavú tému',
+)
+function setTheme(value, persist = true) {
+  theme.value = value === 'light' ? 'light' : 'dark'
+  document.documentElement.dataset.theme = theme.value
+  document.querySelector('meta[name="theme-color"]').content =
+    theme.value === 'dark' ? '#09090b' : '#f7f8f5'
+  if (persist) {
+    try {
+      localStorage.setItem('ynet-theme', theme.value)
+    } catch {
+      notify('Téma sa zmenila, ale výber sa nepodarilo uložiť do prehliadača.')
+    }
+  }
+}
+function toggleTheme() {
+  setTheme(theme.value === 'dark' ? 'light' : 'dark')
+}
+
 const data = ref({ version: 1, events: [] })
 const storageError = ref(''),
   storageLocked = ref(false),
@@ -297,6 +318,7 @@ function resetData() {
   notify('Všetky miestne dáta boli vymazané.')
 }
 function onStorage(e) {
+  if (e.key === 'ynet-theme') setTheme(e.newValue, false)
   if (e.key === STORAGE_KEY) {
     storageLocked.value = true
     storageError.value =
@@ -330,7 +352,7 @@ onUnmounted(() => {
               stroke-linecap="round"
               stroke-linejoin="round"
             /></svg></span
-        ><span>ynet<span class="brand-dot">.</span><small>AKTIVITY</small></span></a
+        ><span>Ynet<span class="brand-dot">.</span><small>AKTIVITY</small></span></a
       >
       <button class="mobile-close icon-button" aria-label="Zavrieť menu" @click="mobileNav = false">
         <Icon name="close" />
@@ -353,6 +375,11 @@ onUnmounted(() => {
           <p>Od prvej izby po posledný kábel. Majte svoju prácu pod kontrolou.</p>
           <span>Ynet · Študentská sieť <Icon name="arrowUp" :size="15" /></span>
         </div>
+        <button class="sidebar-theme-toggle" :aria-label="themeAction" @click="toggleTheme">
+          <Icon :name="theme === 'dark' ? 'sun' : 'moon'" :size="18" />
+          <span>Zmeniť tému</span>
+          <small>{{ theme === 'dark' ? 'Tmavá' : 'Svetlá' }}</small>
+        </button>
         <div class="local-state">
           <span class="status-dot" :class="{ warning: storageError }"></span
           ><span>{{ storageError ? 'Skontrolujte ukladanie' : 'Dáta v tomto prehliadači' }}</span
@@ -379,6 +406,14 @@ onUnmounted(() => {
             ><span class="status-dot" :class="{ warning: storageError }"></span
             >{{ storageError ? 'Neuložené zmeny' : 'Ukladá sa automaticky' }}</span
           >
+          <button
+            class="icon-button theme-toggle"
+            :aria-label="themeAction"
+            :title="themeAction"
+            @click="toggleTheme"
+          >
+            <Icon :name="theme === 'dark' ? 'sun' : 'moon'" :size="18" />
+          </button>
           <div class="avatar" title="Lokálny pracovný priestor">
             <Icon name="building" :size="18" />
           </div>

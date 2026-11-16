@@ -42,6 +42,8 @@ import {
   Clock3,
   Wifi,
   SlidersHorizontal,
+  Moon,
+  Sun,
 } from '@lucide/vue'
 const props = defineProps({ name: String, size: { type: [Number, String], default: 20 } })
 const icons = {
@@ -86,6 +88,8 @@ const icons = {
   clock: Clock3,
   wifi: Wifi,
   filter: SlidersHorizontal,
+  moon: Moon,
+  sun: Sun,
 }
 const component = computed(() => icons[props.name] || Circle)
 </script>
